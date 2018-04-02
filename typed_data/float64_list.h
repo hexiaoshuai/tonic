@@ -6,7 +6,7 @@
 #define LIB_TONIC_TYPED_DATA_FLOAT64_LIST_H_
 
 #include "third_party/dart/runtime/include/dart_api.h"
-#include "lib/tonic/converter/dart_converter.h"
+#include "tonic/converter/dart_converter.h"
 
 namespace tonic {
 
@@ -16,46 +16,44 @@ namespace tonic {
 //
 // This is designed to be used with DartConverter only.
 class Float64List {
- public:
+public:
   explicit Float64List(Dart_Handle list);
-  Float64List(Float64List&& other);
+  Float64List(Float64List &&other);
   Float64List();
   ~Float64List();
 
-  double& at(intptr_t i) {
-    FXL_CHECK(i < num_elements_);
+  double &at(intptr_t i) {
+    TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
-  const double& at(intptr_t i) const {
-    FXL_CHECK(i < num_elements_);
+  const double &at(intptr_t i) const {
+    TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
 
-  double& operator[](intptr_t i) { return at(i); }
-  const double& operator[](intptr_t i) const { return at(i); }
+  double &operator[](intptr_t i) { return at(i); }
+  const double &operator[](intptr_t i) const { return at(i); }
 
-  const double* data() const { return data_; }
+  const double *data() const { return data_; }
   intptr_t num_elements() const { return num_elements_; }
   Dart_Handle dart_handle() const { return dart_handle_; }
 
   void Release();
 
- private:
-  double* data_;
+private:
+  double *data_;
   intptr_t num_elements_;
   Dart_Handle dart_handle_;
 
-  Float64List(const Float64List& other) = delete;
+  Float64List(const Float64List &other) = delete;
 };
 
-template <>
-struct DartConverter<Float64List> {
+template <> struct DartConverter<Float64List> {
   static void SetReturnValue(Dart_NativeArguments args, Float64List val);
-  static Float64List FromArguments(Dart_NativeArguments args,
-                                   int index,
-                                   Dart_Handle& exception);
+  static Float64List FromArguments(Dart_NativeArguments args, int index,
+                                   Dart_Handle &exception);
 };
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_TYPED_DATA_FLOAT64_LIST_H_
+#endif // LIB_TONIC_TYPED_DATA_FLOAT64_LIST_H_

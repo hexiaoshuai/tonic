@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "lib/tonic/logging/dart_error.h"
+#include "tonic/logging/dart_error.h"
 
-#include "lib/fxl/logging.h"
+#include "tonic/common/macros.h"
 
 namespace tonic {
 namespace DartError {
 const char kInvalidArgument[] = "Invalid argument.";
-}  // namespace DartError
+} // namespace DartError
 
 bool LogIfError(Dart_Handle handle) {
   if (Dart_IsError(handle)) {
-    FXL_LOG(ERROR) << Dart_GetError(handle);
+    TONIC_LOG("Dart Error: %s", Dart_GetError(handle));
     return true;
   }
   return false;
@@ -31,4 +31,4 @@ DartErrorHandleType GetErrorHandleType(Dart_Handle handle) {
   }
 }
 
-}  // namespace tonic
+} // namespace tonic

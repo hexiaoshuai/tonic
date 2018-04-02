@@ -5,22 +5,22 @@
 #ifndef LIB_TONIC_DART_LIBRARY_NATIVES_H_
 #define LIB_TONIC_DART_LIBRARY_NATIVES_H_
 
+#include <initializer_list>
 #include <string>
 #include <unordered_map>
-#include <initializer_list>
 
-#include "lib/fxl/logging.h"
 #include "third_party/dart/runtime/include/dart_api.h"
+#include "tonic/common/macros.h"
 
 namespace tonic {
 
 class DartLibraryNatives {
- public:
+public:
   DartLibraryNatives();
   ~DartLibraryNatives();
 
   struct Entry {
-    const char* symbol;
+    const char *symbol;
     Dart_NativeFunction native_function;
     int argument_count;
     bool auto_setup_scope;
@@ -28,18 +28,17 @@ class DartLibraryNatives {
 
   void Register(std::initializer_list<Entry> entries);
 
-  Dart_NativeFunction GetNativeFunction(Dart_Handle name,
-                                        int argument_count,
-                                        bool* auto_setup_scope);
-  const uint8_t* GetSymbol(Dart_NativeFunction native_function);
+  Dart_NativeFunction GetNativeFunction(Dart_Handle name, int argument_count,
+                                        bool *auto_setup_scope);
+  const uint8_t *GetSymbol(Dart_NativeFunction native_function);
 
- private:
+private:
   std::unordered_map<std::string, Entry> entries_;
-  std::unordered_map<Dart_NativeFunction, const char*> symbols_;
+  std::unordered_map<Dart_NativeFunction, const char *> symbols_;
 
-  FXL_DISALLOW_COPY_AND_ASSIGN(DartLibraryNatives);
+  TONIC_DISALLOW_COPY_AND_ASSIGN(DartLibraryNatives);
 };
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_DART_LIBRARY_NATIVES_H_
+#endif // LIB_TONIC_DART_LIBRARY_NATIVES_H_

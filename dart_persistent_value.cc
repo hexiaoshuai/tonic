@@ -2,44 +2,48 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "lib/tonic/dart_persistent_value.h"
+#include "tonic/dart_persistent_value.h"
 
-#include "lib/tonic/scopes/dart_isolate_scope.h"
-#include "lib/tonic/dart_state.h"
+#include "tonic/dart_state.h"
+#include "tonic/scopes/dart_isolate_scope.h"
 
 namespace tonic {
 
 DartPersistentValue::DartPersistentValue() : value_(nullptr) {}
 
-DartPersistentValue::DartPersistentValue(DartPersistentValue&& other)
+DartPersistentValue::DartPersistentValue(DartPersistentValue &&other)
     : dart_state_(other.dart_state_), value_(other.value_) {
-  other.dart_state_ = fxl::WeakPtr<DartState>();
+  other.dart_state_.reset();
   other.value_ = nullptr;
 }
 
-DartPersistentValue::DartPersistentValue(DartState* dart_state,
+DartPersistentValue::DartPersistentValue(DartState *dart_state,
                                          Dart_Handle value)
     : value_(nullptr) {
   Set(dart_state, value);
 }
 
-DartPersistentValue::~DartPersistentValue() {
-  Clear();
-}
+DartPersistentValue::~DartPersistentValue() { Clear(); }
 
-void DartPersistentValue::Set(DartState* dart_state, Dart_Handle value) {
-  FXL_DCHECK(is_empty());
+void DartPersistentValue::Set(DartState *dart_state, Dart_Handle value) {
+  TONIC_DCHECK(is_empty());
   dart_state_ = dart_state->GetWeakPtr();
   value_ = Dart_NewPersistentHandle(value);
 }
 
 void DartPersistentValue::Clear() {
-  if (!value_ || !dart_state_.get())
+  if (!value_) {
     return;
+  }
 
-  DartIsolateScope scope(dart_state_->isolate());
+  auto dart_state = dart_state_.lock();
+  if (!dart_state) {
+    return;
+  }
+
+  DartIsolateScope scope(dart_state->isolate());
   Dart_DeletePersistentHandle(value_);
-  dart_state_ = fxl::WeakPtr<DartState>();
+  dart_state_.reset();
   value_ = nullptr;
 }
 
@@ -54,4 +58,4 @@ Dart_Handle DartPersistentValue::Release() {
   Clear();
   return local;
 }
-}
+} // namespace tonic

@@ -6,7 +6,7 @@
 #define LIB_TONIC_TYPED_DATA_FLOAT32_LIST_H_
 
 #include "third_party/dart/runtime/include/dart_api.h"
-#include "lib/tonic/converter/dart_converter.h"
+#include "tonic/converter/dart_converter.h"
 
 namespace tonic {
 
@@ -16,46 +16,44 @@ namespace tonic {
 //
 // This is designed to be used with DartConverter only.
 class Float32List {
- public:
+public:
   explicit Float32List(Dart_Handle list);
-  Float32List(Float32List&& other);
+  Float32List(Float32List &&other);
   Float32List();
   ~Float32List();
 
-  float& at(intptr_t i) {
-    FXL_CHECK(i < num_elements_);
+  float &at(intptr_t i) {
+    TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
-  const float& at(intptr_t i) const {
-    FXL_CHECK(i < num_elements_);
+  const float &at(intptr_t i) const {
+    TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
 
-  float& operator[](intptr_t i) { return at(i); }
-  const float& operator[](intptr_t i) const { return at(i); }
+  float &operator[](intptr_t i) { return at(i); }
+  const float &operator[](intptr_t i) const { return at(i); }
 
-  const float* data() const { return data_; }
+  const float *data() const { return data_; }
   intptr_t num_elements() const { return num_elements_; }
   Dart_Handle dart_handle() const { return dart_handle_; }
 
   void Release();
 
- private:
-  float* data_;
+private:
+  float *data_;
   intptr_t num_elements_;
   Dart_Handle dart_handle_;
 
-  Float32List(const Float32List& other) = delete;
+  Float32List(const Float32List &other) = delete;
 };
 
-template <>
-struct DartConverter<Float32List> {
+template <> struct DartConverter<Float32List> {
   static void SetReturnValue(Dart_NativeArguments args, Float32List val);
-  static Float32List FromArguments(Dart_NativeArguments args,
-                                   int index,
-                                   Dart_Handle& exception);
+  static Float32List FromArguments(Dart_NativeArguments args, int index,
+                                   Dart_Handle &exception);
 };
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_TYPED_DATA_FLOAT32_LIST_H_
+#endif // LIB_TONIC_TYPED_DATA_FLOAT32_LIST_H_

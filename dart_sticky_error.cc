@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "lib/tonic/dart_sticky_error.h"
+#include "tonic/dart_sticky_error.h"
 
 namespace tonic {
 
@@ -22,8 +22,6 @@ bool DartStickyError::MaybeSet(Dart_Handle result) {
   return true;
 }
 
-bool DartStickyError::IsSet() {
-  return Dart_HasStickyError();
-}
+bool DartStickyError::IsSet() { return Dart_HasStickyError(); }
 
-}  // namespace tonic
+} // namespace tonic

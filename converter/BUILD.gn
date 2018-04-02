@@ -3,17 +3,20 @@
 # found in the LICENSE file.
 
 source_set("converter") {
+  visibility = [ "../*" ]
+
+  configs += [ "../:config" ]
+
   sources = [
     "dart_converter.cc",
     "dart_converter.h",
   ]
 
-  public_deps = [
-    "//third_party/dart/runtime:dart_api",
-    "//garnet/public/lib/fxl",
+  deps = [
+    "../common",
   ]
 
-  public_configs = [
-    "//topaz/lib/tonic:config",
+  public_deps = [
+    "//third_party/dart/runtime:dart_api",
   ]
 }

@@ -2,24 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "lib/tonic/logging/dart_invoke.h"
+#include "tonic/logging/dart_invoke.h"
 
-#include "lib/fxl/logging.h"
-#include "lib/tonic/logging/dart_error.h"
+#include "tonic/common/macros.h"
+#include "tonic/logging/dart_error.h"
 
 namespace tonic {
 
-bool DartInvokeField(Dart_Handle target,
-                     const char* name,
+bool DartInvokeField(Dart_Handle target, const char *name,
                      std::initializer_list<Dart_Handle> args) {
   Dart_Handle field = Dart_NewStringFromCString(name);
   return LogIfError(Dart_Invoke(target, field, args.size(),
-                                const_cast<Dart_Handle*>(args.begin())));
+                                const_cast<Dart_Handle *>(args.begin())));
 }
 
 void DartInvoke(Dart_Handle closure, std::initializer_list<Dart_Handle> args) {
   int argc = args.size();
-  Dart_Handle* argv = const_cast<Dart_Handle*>(args.begin());
+  Dart_Handle *argv = const_cast<Dart_Handle *>(args.begin());
   Dart_Handle handle = Dart_InvokeClosure(closure, argc, argv);
   LogIfError(handle);
 }
@@ -30,4 +29,4 @@ Dart_Handle DartInvokeVoid(Dart_Handle closure) {
   return handle;
 }
 
-}  // namespace tonic
+} // namespace tonic

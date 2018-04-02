@@ -6,12 +6,11 @@
 #define LIB_TONIC_DART_WRAPPABLE_H_
 
 #include "third_party/dart/runtime/include/dart_api.h"
-#include "lib/fxl/logging.h"
-#include "lib/fxl/memory/ref_counted.h"
-#include "lib/tonic/converter/dart_converter.h"
-#include "lib/tonic/logging/dart_error.h"
-#include "lib/tonic/dart_state.h"
-#include "lib/tonic/dart_wrapper_info.h"
+#include "tonic/common/macros.h"
+#include "tonic/converter/dart_converter.h"
+#include "tonic/dart_state.h"
+#include "tonic/dart_wrapper_info.h"
+#include "tonic/logging/dart_error.h"
 
 #include <type_traits>
 
@@ -20,9 +19,9 @@ namespace tonic {
 // DartWrappable is a base class that you can inherit from in order to be
 // exposed to Dart code as an interface.
 class DartWrappable {
- public:
+public:
   enum DartNativeFields {
-    kPeerIndex,  // Must be first to work with Dart_GetNativeReceiver.
+    kPeerIndex, // Must be first to work with Dart_GetNativeReceiver.
     kWrapperInfoIndex,
     kNumberOfNativeFields,
   };
@@ -32,75 +31,72 @@ class DartWrappable {
   // Subclasses that wish to expose a new interface must override this function
   // and provide information about their wrapper. There is no need to call your
   // base class's implementation of this function.
-  virtual const DartWrapperInfo& GetDartWrapperInfo() const = 0;
+  // Implement using IMPLEMENT_WRAPPERTYPEINFO macro
+  virtual const DartWrapperInfo &GetDartWrapperInfo() const = 0;
 
   // Override this to customize the object size reported to the Dart garbage
   // collector.
+  // Implement using IMPLEMENT_WRAPPERTYPEINFO macro
   virtual size_t GetAllocationSize();
 
-  Dart_Handle CreateDartWrapper(DartState* dart_state);
+  virtual void RetainDartWrappableReference() const = 0;
+
+  virtual void ReleaseDartWrappableReference() const = 0;
+
+  Dart_Handle CreateDartWrapper(DartState *dart_state);
   void AssociateWithDartWrapper(Dart_NativeArguments args);
-  void ClearDartWrapper();  // Warning: Might delete this.
+  void ClearDartWrapper(); // Warning: Might delete this.
   Dart_WeakPersistentHandle dart_wrapper() const { return dart_wrapper_; }
 
- protected:
+protected:
   virtual ~DartWrappable();
 
- private:
-  static void FinalizeDartWrapper(void* isolate_callback_data,
+  static Dart_PersistentHandle
+  GetTypeForWrapper(tonic::DartState *dart_state,
+                    const tonic::DartWrapperInfo &wrapper_info);
+
+private:
+  static void FinalizeDartWrapper(void *isolate_callback_data,
                                   Dart_WeakPersistentHandle wrapper,
-                                  void* peer);
+                                  void *peer);
 
   Dart_WeakPersistentHandle dart_wrapper_;
 
-  FXL_DISALLOW_COPY_AND_ASSIGN(DartWrappable);
+  TONIC_DISALLOW_COPY_AND_ASSIGN(DartWrappable);
 };
 
-#define DEFINE_WRAPPERTYPEINFO()                                      \
- public:                                                              \
-  const tonic::DartWrapperInfo& GetDartWrapperInfo() const override { \
-    return dart_wrapper_info_;                                        \
-  }                                                                   \
-                                                                      \
- private:                                                             \
-  static const tonic::DartWrapperInfo& dart_wrapper_info_
+#define DEFINE_WRAPPERTYPEINFO()                                               \
+public:                                                                        \
+  const tonic::DartWrapperInfo &GetDartWrapperInfo() const override {          \
+    return dart_wrapper_info_;                                                 \
+  }                                                                            \
+  static Dart_PersistentHandle GetDartType(tonic::DartState *dart_state) {     \
+    return GetTypeForWrapper(dart_state, dart_wrapper_info_);                  \
+  }                                                                            \
+                                                                               \
+private:                                                                       \
+  static const tonic::DartWrapperInfo &dart_wrapper_info_
 
-#define IMPLEMENT_WRAPPERTYPEINFO(LibraryName, ClassName)                \
-  static void RefObject_##LibraryName_##ClassName(                       \
-      tonic::DartWrappable* impl) {                                      \
-    static_cast<ClassName*>(impl)->AddRef();                             \
-  }                                                                      \
-  static void DerefObject_##LibraryName_##ClassName(                     \
-      tonic::DartWrappable* impl) {                                      \
-    static_cast<ClassName*>(impl)->Release();                            \
-  }                                                                      \
-  static const tonic::DartWrapperInfo                                    \
-      kDartWrapperInfo_##LibraryName_##ClassName = {                     \
-          #LibraryName,                                                  \
-          #ClassName,                                                    \
-          sizeof(ClassName),                                             \
-          &RefObject_##LibraryName_##ClassName,                          \
-          &DerefObject_##LibraryName_##ClassName,                        \
-  };                                                                     \
-  const tonic::DartWrapperInfo& ClassName::dart_wrapper_info_ =          \
-      kDartWrapperInfo_##LibraryName_##ClassName;                        \
-  static_assert(std::is_base_of<fxl::internal::RefCountedThreadSafeBase, \
-                                ClassName>::value,                       \
-                #ClassName " must be thread-safe reference-countable.");
+#define IMPLEMENT_WRAPPERTYPEINFO(LibraryName, ClassName)                      \
+  static const tonic::DartWrapperInfo                                          \
+      kDartWrapperInfo_##LibraryName_##ClassName = {                           \
+          #LibraryName,                                                        \
+          #ClassName,                                                          \
+          sizeof(ClassName),                                                   \
+  };                                                                           \
+  const tonic::DartWrapperInfo &ClassName::dart_wrapper_info_ =                \
+      kDartWrapperInfo_##LibraryName_##ClassName;
 
 struct DartConverterWrappable {
-  static DartWrappable* FromDart(Dart_Handle handle);
-  static DartWrappable* FromArguments(Dart_NativeArguments args,
-                                      int index,
-                                      Dart_Handle& exception);
+  static DartWrappable *FromDart(Dart_Handle handle);
+  static DartWrappable *FromArguments(Dart_NativeArguments args, int index,
+                                      Dart_Handle &exception);
 };
 
 template <typename T>
-struct DartConverter<
-    T*,
-    typename std::enable_if<
-        std::is_convertible<T*, const DartWrappable*>::value>::type> {
-  static Dart_Handle ToDart(DartWrappable* val) {
+struct DartConverter<T *, typename std::enable_if<std::is_convertible<
+                              T *, const DartWrappable *>::value>::type> {
+  static Dart_Handle ToDart(DartWrappable *val) {
     if (!val)
       return Dart_Null();
     if (Dart_WeakPersistentHandle wrapper = val->dart_wrapper())
@@ -108,8 +104,7 @@ struct DartConverter<
     return val->CreateDartWrapper(DartState::Current());
   }
 
-  static void SetReturnValue(Dart_NativeArguments args,
-                             DartWrappable* val,
+  static void SetReturnValue(Dart_NativeArguments args, DartWrappable *val,
                              bool auto_scope = true) {
     if (!val)
       Dart_SetReturnValue(args, Dart_Null());
@@ -119,56 +114,28 @@ struct DartConverter<
       Dart_SetReturnValue(args, val->CreateDartWrapper(DartState::Current()));
   }
 
-  static T* FromDart(Dart_Handle handle) {
+  static T *FromDart(Dart_Handle handle) {
     // TODO(abarth): We're missing a type check.
-    return static_cast<T*>(DartConverterWrappable::FromDart(handle));
+    return static_cast<T *>(DartConverterWrappable::FromDart(handle));
   }
 
-  static T* FromArguments(Dart_NativeArguments args,
-                          int index,
-                          Dart_Handle& exception,
-                          bool auto_scope = true) {
+  static T *FromArguments(Dart_NativeArguments args, int index,
+                          Dart_Handle &exception, bool auto_scope = true) {
     // TODO(abarth): We're missing a type check.
-    return static_cast<T*>(
+    return static_cast<T *>(
         DartConverterWrappable::FromArguments(args, index, exception));
   }
 };
 
-template <typename T>
-struct DartConverter<fxl::RefPtr<T>> {
-  static Dart_Handle ToDart(const fxl::RefPtr<T>& val) {
-    return DartConverter<T*>::ToDart(val.get());
-  }
-
-  static fxl::RefPtr<T> FromDart(Dart_Handle handle) {
-    return DartConverter<T*>::FromDart(handle);
-  }
-
-  static fxl::RefPtr<T> FromArguments(Dart_NativeArguments args,
-                                      int index,
-                                      Dart_Handle& exception,
-                                      bool auto_scope = true) {
-    return fxl::RefPtr<T>(
-        DartConverter<T*>::FromArguments(args, index, exception, auto_scope));
-  }
-
-  static void SetReturnValue(Dart_NativeArguments args,
-                             const fxl::RefPtr<T>& val,
-                             bool auto_scope = true) {
-    DartConverter<T*>::SetReturnValue(args, val.get());
-  }
-};
-
-template <typename T>
-inline T* GetReceiver(Dart_NativeArguments args) {
+template <typename T> inline T *GetReceiver(Dart_NativeArguments args) {
   intptr_t receiver;
   Dart_Handle result = Dart_GetNativeReceiver(args, &receiver);
-  FXL_DCHECK(!Dart_IsError(result));
+  TONIC_DCHECK(!Dart_IsError(result));
   if (!receiver)
     Dart_ThrowException(ToDart("Object has been disposed."));
-  return static_cast<T*>(reinterpret_cast<DartWrappable*>(receiver));
+  return static_cast<T *>(reinterpret_cast<DartWrappable *>(receiver));
 }
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_DART_WRAPPABLE_H_
+#endif // LIB_TONIC_DART_WRAPPABLE_H_

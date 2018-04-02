@@ -3,19 +3,29 @@
 # found in the LICENSE file.
 
 source_set("file_loader") {
+  visibility = [ "../*" ]
+
+  configs += [ "../:config" ]
+
   sources = [
     "file_loader.cc",
     "file_loader.h",
   ]
 
-  deps = [
-    "//third_party/dart/runtime:dart_api",
-    "//garnet/public/lib/fxl",
-    "//topaz/lib/tonic/converter",
-    "//topaz/lib/tonic/parsers",
-  ]
+  if (is_win) {
+    sources += [ "file_loader_win.cc" ]
+  } else if (is_fuchsia) {
+    sources += [ "file_loader_fuchsia.cc" ]
+  } else {
+    sources += [ "file_loader_posix.cc" ]
+  }
 
-  public_configs = [
-    "//topaz/lib/tonic:config",
+  deps = [
+    "../common",
+    "../converter",
+    "../filesystem",
+    "../parsers",
+    "../platform",
+    "//third_party/dart/runtime:dart_api",
   ]
 }

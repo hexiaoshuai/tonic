@@ -3,6 +3,10 @@
 # found in the LICENSE file.
 
 source_set("typed_data") {
+  visibility = [ "../*" ]
+
+  configs += [ "../:config" ]
+
   sources = [
     "dart_byte_data.cc",
     "dart_byte_data.h",
@@ -16,14 +20,13 @@ source_set("typed_data") {
     "uint8_list.h",
   ]
 
-  public_deps = [
-    "//third_party/dart/runtime:dart_api",
-    "//garnet/public/lib/fxl",
-    "//topaz/lib/tonic/converter",
-    "//topaz/lib/tonic/logging",
+  deps = [
+    "../common",
   ]
 
-  public_configs = [
-    "//topaz/lib/tonic:config",
+  public_deps = [
+    "../converter",
+    "../logging",
+    "//third_party/dart/runtime:dart_api",
   ]
 }

@@ -5,26 +5,25 @@
 #ifndef LIB_TONIC_DART_CLASS_PROVIDER_H_
 #define LIB_TONIC_DART_CLASS_PROVIDER_H_
 
-#include "lib/fxl/macros.h"
 #include "third_party/dart/runtime/include/dart_api.h"
-#include "lib/tonic/dart_persistent_value.h"
+#include "tonic/dart_persistent_value.h"
 
 namespace tonic {
 class DartState;
 
 class DartClassProvider {
- public:
-  DartClassProvider(DartState* dart_state, const char* library_name);
+public:
+  DartClassProvider(DartState *dart_state, const char *library_name);
   ~DartClassProvider();
 
-  Dart_Handle GetClassByName(const char* class_name);
+  Dart_Handle GetClassByName(const char *class_name);
 
- private:
+private:
   DartPersistentValue library_;
 
-  FXL_DISALLOW_COPY_AND_ASSIGN(DartClassProvider);
+  TONIC_DISALLOW_COPY_AND_ASSIGN(DartClassProvider);
 };
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_DART_CLASS_PROVIDER_H_
+#endif // LIB_TONIC_DART_CLASS_PROVIDER_H_

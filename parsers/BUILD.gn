@@ -3,12 +3,16 @@
 # found in the LICENSE file.
 
 source_set("parsers") {
+  visibility = [ "../*" ]
+
+  configs += [ "../:config" ]
+
+  deps = [
+    "../common",
+  ]
+
   sources = [
     "packages_map.cc",
     "packages_map.h",
-  ]
-
-  public_configs = [
-    "//topaz/lib/tonic:config",
   ]
 }

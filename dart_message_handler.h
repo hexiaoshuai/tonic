@@ -5,22 +5,29 @@
 #ifndef LIB_TONIC_DART_MESSAGE_HANDLER_H_
 #define LIB_TONIC_DART_MESSAGE_HANDLER_H_
 
+#include <functional>
+
 #include "third_party/dart/runtime/include/dart_api.h"
-#include "lib/fxl/memory/ref_ptr.h"
-#include "lib/fxl/memory/weak_ptr.h"
-#include "lib/fxl/tasks/task_runner.h"
-#include "lib/tonic/logging/dart_error.h"
+#include "tonic/logging/dart_error.h"
 
 namespace tonic {
 class DartState;
 
 class DartMessageHandler {
- public:
+public:
+  using TaskDispatcher = std::function<void(std::function<void(void)>)>;
+
   DartMessageHandler();
+
   ~DartMessageHandler();
 
   // Messages for the current isolate will be scheduled on |runner|.
-  void Initialize(const fxl::RefPtr<fxl::TaskRunner>& runner);
+  void Initialize(TaskDispatcher dispatcher,
+                  std::function<void()> message_epilogue = nullptr);
+
+  // Handle an unhandled error. If the error is fatal then shut down the
+  // isolate. The message handler's isolate must be the current isolate.
+  void UnhandledError(Dart_Handle error);
 
   // Did the isolate exit?
   bool isolate_exited() const { return isolate_exited_; }
@@ -30,19 +37,13 @@ class DartMessageHandler {
     return isolate_had_uncaught_exception_error_;
   }
 
-  DartErrorHandleType isolate_last_error() const {
-    return isolate_last_error_;
-  }
+  DartErrorHandleType isolate_last_error() const { return isolate_last_error_; }
 
- protected:
+protected:
   // Called from an unknown thread for each message.
-  void OnMessage(DartState* dart_state);
+  void OnMessage(DartState *dart_state);
   // By default, called on the task runner's thread for each message.
-  void OnHandleMessage(DartState* dart_state);
-
-  const fxl::RefPtr<fxl::TaskRunner>& task_runner() const {
-    return task_runner_;
-  }
+  void OnHandleMessage(DartState *dart_state);
 
   bool handled_first_message() const { return handled_first_message_; }
 
@@ -53,13 +54,15 @@ class DartMessageHandler {
   bool handled_first_message_;
   bool isolate_exited_;
   bool isolate_had_uncaught_exception_error_;
+  bool isolate_had_fatal_error_;
   DartErrorHandleType isolate_last_error_;
-  fxl::RefPtr<fxl::TaskRunner> task_runner_;
+  TaskDispatcher task_dispatcher_;
+  std::function<void()> message_epilogue_;
 
- private:
+private:
   static void MessageNotifyCallback(Dart_Isolate dest_isolate);
 };
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_DART_MESSAGE_HANDLER_H_
+#endif // LIB_TONIC_DART_MESSAGE_HANDLER_H_

@@ -2,51 +2,73 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "lib/tonic/dart_message_handler.h"
+#include "tonic/dart_message_handler.h"
 
 #include "third_party/dart/runtime/include/dart_api.h"
 #include "third_party/dart/runtime/include/dart_native_api.h"
 #include "third_party/dart/runtime/include/dart_tools_api.h"
-#include "lib/fxl/logging.h"
-#include "lib/tonic/logging/dart_error.h"
-#include "lib/tonic/dart_state.h"
-#include "lib/tonic/dart_sticky_error.h"
+#include "tonic/common/macros.h"
+#include "tonic/dart_state.h"
+#include "tonic/dart_sticky_error.h"
+#include "tonic/logging/dart_error.h"
 
 namespace tonic {
 
 DartMessageHandler::DartMessageHandler()
-    : handled_first_message_(false),
-      isolate_exited_(false),
+    : handled_first_message_(false), isolate_exited_(false),
       isolate_had_uncaught_exception_error_(false),
-      isolate_last_error_(kNoError),
-      task_runner_(nullptr) {}
+      isolate_had_fatal_error_(false), isolate_last_error_(kNoError),
+      task_dispatcher_(nullptr), message_epilogue_(nullptr) {}
 
 DartMessageHandler::~DartMessageHandler() {
-  task_runner_ = nullptr;
+  task_dispatcher_ = nullptr;
+  message_epilogue_ = nullptr;
 }
 
-void DartMessageHandler::Initialize(
-    const fxl::RefPtr<fxl::TaskRunner>& runner) {
+void DartMessageHandler::Initialize(TaskDispatcher dispatcher,
+                                    std::function<void()> message_epilogue) {
   // Only can be called once.
-  FXL_CHECK(!task_runner_);
-  task_runner_ = runner;
-  FXL_CHECK(task_runner_);
+  TONIC_CHECK(!task_dispatcher_);
+  task_dispatcher_ = dispatcher;
+  message_epilogue_ = message_epilogue;
+  TONIC_CHECK(task_dispatcher_);
   Dart_SetMessageNotifyCallback(MessageNotifyCallback);
 }
 
-void DartMessageHandler::OnMessage(DartState* dart_state) {
-  auto task_runner = dart_state->message_handler().task_runner();
+void DartMessageHandler::OnMessage(DartState *dart_state) {
+  auto task_dispatcher_ = dart_state->message_handler().task_dispatcher_;
 
   // Schedule a task to run on the message loop thread.
-  fxl::WeakPtr<DartState> dart_state_ptr = dart_state->GetWeakPtr();
-  task_runner->PostTask([dart_state_ptr]() {
-    if (!dart_state_ptr)
-      return;
-    dart_state_ptr->message_handler().OnHandleMessage(dart_state_ptr.get());
+  auto weak_dart_state = dart_state->GetWeakPtr();
+  task_dispatcher_([weak_dart_state]() {
+    if (auto dart_state = weak_dart_state.lock()) {
+      dart_state->message_handler().OnHandleMessage(dart_state.get());
+    }
   });
 }
 
-void DartMessageHandler::OnHandleMessage(DartState* dart_state) {
+void DartMessageHandler::UnhandledError(Dart_Handle error) {
+  TONIC_DCHECK(Dart_CurrentIsolate());
+  TONIC_DCHECK(Dart_IsError(error));
+
+  isolate_last_error_ = GetErrorHandleType(error);
+  // Remember that we had an uncaught exception error.
+  isolate_had_uncaught_exception_error_ = true;
+  if (Dart_IsFatalError(error)) {
+    isolate_had_fatal_error_ = true;
+    // Stop handling messages.
+    Dart_SetMessageNotifyCallback(nullptr);
+    // Shut down the isolate.
+    Dart_ShutdownIsolate();
+  }
+}
+
+void DartMessageHandler::OnHandleMessage(DartState *dart_state) {
+  if (isolate_had_fatal_error_) {
+    // Don't handle any more messages.
+    return;
+  }
+
   DartIsolateScope scope(dart_state->isolate());
   DartApiScope dart_api_scope;
   Dart_Handle result = Dart_Null();
@@ -70,8 +92,11 @@ void DartMessageHandler::OnHandleMessage(DartState* dart_state) {
         return;
       }
       Dart_SetPausedOnStart(false);
-      // We've resumed, handle *all* normal messages that are in the queue.
-      result = Dart_HandleMessages();
+      // We've resumed, handle normal messages that are in the queue.
+      result = Dart_HandleMessage();
+      if (message_epilogue_) {
+        message_epilogue_();
+      }
       error = LogIfError(result);
     }
   } else if (Dart_IsPausedOnExit()) {
@@ -86,7 +111,10 @@ void DartMessageHandler::OnHandleMessage(DartState* dart_state) {
     }
   } else {
     // We are processing messages normally.
-    result = Dart_HandleMessages();
+    result = Dart_HandleMessage();
+    if (message_epilogue_) {
+      message_epilogue_();
+    }
     // If the Dart program has set a return code, then it is intending to shut
     // down by way of a fatal error, and so there is no need to emit a log
     // message.
@@ -99,17 +127,7 @@ void DartMessageHandler::OnHandleMessage(DartState* dart_state) {
   }
 
   if (error) {
-    isolate_last_error_ = GetErrorHandleType(result);
-    if (Dart_IsError(result)) {
-      // Remember that we had an uncaught exception error.
-      isolate_had_uncaught_exception_error_ = true;
-      if (Dart_IsFatalError(result)) {
-        // Stop handling messages.
-        Dart_SetMessageNotifyCallback(nullptr);
-        // Shut down the isolate.
-        Dart_ShutdownIsolate();
-      }
-    }
+    UnhandledError(result);
   } else if (!Dart_HasLivePorts()) {
     // The isolate has no live ports and would like to exit.
     if (!Dart_IsPausedOnExit() && Dart_ShouldPauseOnExit()) {
@@ -123,8 +141,8 @@ void DartMessageHandler::OnHandleMessage(DartState* dart_state) {
 
 void DartMessageHandler::MessageNotifyCallback(Dart_Isolate dest_isolate) {
   auto dart_state = DartState::From(dest_isolate);
-  FXL_CHECK(dart_state);
+  TONIC_CHECK(dart_state);
   dart_state->message_handler().OnMessage(dart_state);
 }
 
-}  // namespace tonic
+} // namespace tonic

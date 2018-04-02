@@ -8,24 +8,22 @@
 #include <stddef.h>
 
 #include "third_party/dart/runtime/include/dart_api.h"
-#include "lib/tonic/converter/dart_converter.h"
+#include "tonic/converter/dart_converter.h"
 
 namespace tonic {
 
 class DartList {
- public:
-  DartList(DartList&& other);
+public:
+  DartList(DartList &&other);
 
   void Set(size_t index, Dart_Handle value);
   Dart_Handle Get(size_t index);
 
-  template <class T>
-  void Set(size_t index, T value) {
+  template <class T> void Set(size_t index, T value) {
     Set(index, DartConverter<T>::ToDart(value));
   }
 
-  template <class T>
-  T Get(size_t index) {
+  template <class T> T Get(size_t index) {
     return DartConverter<T>::FromDart(Get(index));
   }
 
@@ -35,7 +33,7 @@ class DartList {
 
   explicit operator bool() const { return is_valid_; }
 
- private:
+private:
   explicit DartList(Dart_Handle list);
   friend struct DartConverter<DartList>;
 
@@ -44,16 +42,14 @@ class DartList {
   size_t size_;
   bool is_valid_;
 
-  DartList(const DartList& other) = delete;
+  DartList(const DartList &other) = delete;
 };
 
-template <>
-struct DartConverter<DartList> {
-  static DartList FromArguments(Dart_NativeArguments args,
-                                int index,
-                                Dart_Handle& exception);
+template <> struct DartConverter<DartList> {
+  static DartList FromArguments(Dart_NativeArguments args, int index,
+                                Dart_Handle &exception);
 };
 
-}  // namespace tonic
+} // namespace tonic
 
-#endif  // LIB_TONIC_DART_LIST_H_
+#endif // LIB_TONIC_DART_LIST_H_
