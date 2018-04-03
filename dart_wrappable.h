@@ -127,6 +127,43 @@ struct DartConverter<T *, typename std::enable_if<std::is_convertible<
   }
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Support for generic smart pointers that have a "get" method that returns a
+// pointer to a type that is Dart convertible as well as a constructor that
+// adopts a raw pointer to that type.
+
+template <template <typename T> class PTR, typename T>
+struct DartConverter<PTR<T>> {
+  static Dart_Handle ToDart(const PTR<T> &val) {
+    return DartConverter<T *>::ToDart(val.get());
+  }
+
+  static PTR<T> FromDart(Dart_Handle handle) {
+    return DartConverter<T *>::FromDart(handle);
+  }
+
+  static PTR<T> FromArguments(Dart_NativeArguments args, int index,
+                              Dart_Handle &exception, bool auto_scope = true) {
+    return PTR<T>(
+        DartConverter<T *>::FromArguments(args, index, exception, auto_scope));
+  }
+
+  static void SetReturnValue(Dart_NativeArguments args, const PTR<T> &val,
+                             bool auto_scope = true) {
+    DartConverter<T *>::SetReturnValue(args, val.get());
+  }
+};
+
+template <template <typename T> class PTR, typename T>
+struct DartListFactory<PTR<T>, typename std::enable_if<std::is_convertible<
+                                   T *, const DartWrappable *>::value>::type> {
+  static Dart_Handle NewList(intptr_t length) {
+    Dart_PersistentHandle type = T::GetDartType(DartState::Current());
+    TONIC_DCHECK(!LogIfError(type));
+    return Dart_NewListOfType(Dart_HandleFromPersistent(type), length);
+  }
+};
+
 template <typename T> inline T *GetReceiver(Dart_NativeArguments args) {
   intptr_t receiver;
   Dart_Handle result = Dart_GetNativeReceiver(args, &receiver);
