@@ -24,7 +24,7 @@
 namespace filesystem {
 namespace {
 
-size_t RootLength(const std::string &path) {
+size_t RootLength(const std::string& path) {
   if (path.size() == 0)
     return 0;
   if (path[0] == '/')
@@ -53,21 +53,24 @@ size_t RootLength(const std::string &path) {
   return 0;
 }
 
-size_t IsSeparator(const char sep) { return sep == '/' || sep == '\\'; }
+size_t IsSeparator(const char sep) {
+  return sep == '/' || sep == '\\';
+}
 
-size_t LastSeparator(const std::string &path) {
+size_t LastSeparator(const std::string& path) {
   return path.find_last_of("/\\");
 }
 
-size_t LastSeparator(const std::string &path, size_t pos) {
+size_t LastSeparator(const std::string& path, size_t pos) {
   return path.find_last_of("/\\", pos);
 }
 
-size_t FirstSeparator(const std::string &path, size_t pos) {
+size_t FirstSeparator(const std::string& path, size_t pos) {
   return path.find_first_of("/\\", pos);
 }
 
-size_t ResolveParentDirectoryTraversal(const std::string &path, size_t put,
+size_t ResolveParentDirectoryTraversal(const std::string& path,
+                                       size_t put,
                                        size_t root_length) {
   if (put <= root_length) {
     return root_length;
@@ -77,7 +80,7 @@ size_t ResolveParentDirectoryTraversal(const std::string &path, size_t put,
     return previous_separator + 1;
   return 0;
 }
-} // namespace
+}  // namespace
 
 std::string SimplifyPath(std::string path) {
   if (path.empty())
@@ -171,22 +174,22 @@ std::string SimplifyPath(std::string path) {
   }
 
   if (put >= 2 && IsSeparator(path[put - 1]))
-    --put; // Trim trailing /
+    --put;  // Trim trailing /
   else if (put == 0)
-    return "."; // Use . for otherwise empty paths to treat them as relative.
+    return ".";  // Use . for otherwise empty paths to treat them as relative.
 
   path.resize(put);
   std::replace(path.begin(), path.end(), '/', '\\');
   return path;
 }
 
-std::string AbsolutePath(const std::string &path) {
+std::string AbsolutePath(const std::string& path) {
   char absPath[MAX_PATH];
   _fullpath(absPath, path.c_str(), MAX_PATH);
   return std::string(absPath);
 }
 
-std::string GetDirectoryName(const std::string &path) {
+std::string GetDirectoryName(const std::string& path) {
   size_t rootLength = RootLength(path);
   size_t separator = LastSeparator(path);
   if (separator < rootLength)
@@ -196,14 +199,14 @@ std::string GetDirectoryName(const std::string &path) {
   return path.substr(0, separator);
 }
 
-std::string GetBaseName(const std::string &path) {
+std::string GetBaseName(const std::string& path) {
   size_t separator = LastSeparator(path);
   if (separator == std::string::npos)
     return path;
   return path.substr(separator + 1);
 }
 
-bool DeletePath(const std::string &path, bool recursive) {
+bool DeletePath(const std::string& path, bool recursive) {
   // SimplifyPath because SHFileOperation has trouble with double slashes.
   std::string simple_path = SimplifyPath(path);
   DWORD ftyp = GetFileAttributesA(simple_path.c_str());
@@ -225,4 +228,4 @@ bool DeletePath(const std::string &path, bool recursive) {
   return (a == 0);
 }
 
-} // namespace filesystem
+}  // namespace filesystem

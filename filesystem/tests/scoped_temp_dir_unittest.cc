@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "filesystem/scoped_temp_dir.h"
 #include "filesystem/directory.h"
 #include "filesystem/path.h"
-#include "filesystem/scoped_temp_dir.h"
 #include "gtest/gtest.h"
 
 namespace filesystem {
@@ -53,4 +53,4 @@ TEST(ScopedTempDir, CustomParent) {
   EXPECT_TRUE(IsDirectory(parent));
 }
 
-} // namespace filesystem
+}  // namespace filesystem

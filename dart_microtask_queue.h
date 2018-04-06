@@ -14,13 +14,13 @@
 namespace tonic {
 
 class DartMicrotaskQueue {
-public:
+ public:
   DartMicrotaskQueue();
   ~DartMicrotaskQueue();
 
   static void StartForCurrentThread();
 
-  static DartMicrotaskQueue *GetForCurrentThread();
+  static DartMicrotaskQueue* GetForCurrentThread();
 
   void ScheduleMicrotask(Dart_Handle callback);
   void RunMicrotasks();
@@ -30,13 +30,13 @@ public:
 
   DartErrorHandleType GetLastError();
 
-private:
+ private:
   typedef std::vector<DartPersistentValue> MicrotaskQueue;
 
   DartErrorHandleType last_error_;
   MicrotaskQueue queue_;
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_DART_MICROTASK_QUEUE_H_
+#endif  // LIB_TONIC_DART_MICROTASK_QUEUE_H_

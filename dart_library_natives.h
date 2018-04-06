@@ -15,12 +15,12 @@
 namespace tonic {
 
 class DartLibraryNatives {
-public:
+ public:
   DartLibraryNatives();
   ~DartLibraryNatives();
 
   struct Entry {
-    const char *symbol;
+    const char* symbol;
     Dart_NativeFunction native_function;
     int argument_count;
     bool auto_setup_scope;
@@ -28,17 +28,18 @@ public:
 
   void Register(std::initializer_list<Entry> entries);
 
-  Dart_NativeFunction GetNativeFunction(Dart_Handle name, int argument_count,
-                                        bool *auto_setup_scope);
-  const uint8_t *GetSymbol(Dart_NativeFunction native_function);
+  Dart_NativeFunction GetNativeFunction(Dart_Handle name,
+                                        int argument_count,
+                                        bool* auto_setup_scope);
+  const uint8_t* GetSymbol(Dart_NativeFunction native_function);
 
-private:
+ private:
   std::unordered_map<std::string, Entry> entries_;
-  std::unordered_map<Dart_NativeFunction, const char *> symbols_;
+  std::unordered_map<Dart_NativeFunction, const char*> symbols_;
 
   TONIC_DISALLOW_COPY_AND_ASSIGN(DartLibraryNatives);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_DART_LIBRARY_NATIVES_H_
+#endif  // LIB_TONIC_DART_LIBRARY_NATIVES_H_

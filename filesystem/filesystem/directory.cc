@@ -21,14 +21,14 @@ std::string GetCurrentDirectory() {
   return std::string(buffer);
 }
 
-bool IsDirectory(const std::string &path) {
+bool IsDirectory(const std::string& path) {
   struct stat buf;
   if (stat(path.c_str(), &buf) != 0)
     return false;
   return S_ISDIR(buf.st_mode);
 }
 
-bool CreateDirectory(const std::string &full_path) {
+bool CreateDirectory(const std::string& full_path) {
   std::vector<std::string> subpaths;
 
   // Collect a list of all parent directories.
@@ -56,4 +56,4 @@ bool CreateDirectory(const std::string &full_path) {
   return true;
 }
 
-} // namespace filesystem
+}  // namespace filesystem

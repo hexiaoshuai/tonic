@@ -11,15 +11,17 @@
 namespace tonic {
 namespace {
 
-bool isLineBreak(char c) { return c == '\r' || c == '\n'; }
+bool isLineBreak(char c) {
+  return c == '\r' || c == '\n';
+}
 
-} // namespace
+}  // namespace
 
 PackagesMap::PackagesMap() {}
 
 PackagesMap::~PackagesMap() {}
 
-bool PackagesMap::Parse(const std::string &source, std::string *error) {
+bool PackagesMap::Parse(const std::string& source, std::string* error) {
   map_.clear();
   const auto end = source.end();
   for (auto it = source.begin(); it != end; ++it) {
@@ -78,8 +80,8 @@ bool PackagesMap::Parse(const std::string &source, std::string *error) {
   return true;
 }
 
-std::string PackagesMap::Resolve(const std::string &package_name) {
+std::string PackagesMap::Resolve(const std::string& package_name) {
   return map_[package_name];
 }
 
-} // namespace tonic
+}  // namespace tonic

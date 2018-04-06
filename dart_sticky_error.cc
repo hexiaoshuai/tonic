@@ -22,6 +22,8 @@ bool DartStickyError::MaybeSet(Dart_Handle result) {
   return true;
 }
 
-bool DartStickyError::IsSet() { return Dart_HasStickyError(); }
+bool DartStickyError::IsSet() {
+  return Dart_HasStickyError();
+}
 
-} // namespace tonic
+}  // namespace tonic

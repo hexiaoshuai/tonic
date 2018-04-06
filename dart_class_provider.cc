@@ -10,14 +10,14 @@
 
 namespace tonic {
 
-DartClassProvider::DartClassProvider(DartState *dart_state,
-                                     const char *class_name) {
+DartClassProvider::DartClassProvider(DartState* dart_state,
+                                     const char* class_name) {
   library_.Set(dart_state, Dart_LookupLibrary(ToDart(class_name)));
 }
 
 DartClassProvider::~DartClassProvider() {}
 
-Dart_Handle DartClassProvider::GetClassByName(const char *class_name) {
+Dart_Handle DartClassProvider::GetClassByName(const char* class_name) {
   Dart_Handle name_handle = ToDart(class_name);
   Dart_Handle class_handle =
       Dart_GetType(library_.value(), name_handle, 0, nullptr);
@@ -25,4 +25,4 @@ Dart_Handle DartClassProvider::GetClassByName(const char *class_name) {
   return class_handle;
 }
 
-} // namespace tonic
+}  // namespace tonic

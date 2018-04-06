@@ -9,7 +9,7 @@
 namespace tonic {
 namespace DartError {
 const char kInvalidArgument[] = "Invalid argument.";
-} // namespace DartError
+}  // namespace DartError
 
 bool LogIfError(Dart_Handle handle) {
   if (Dart_IsError(handle)) {
@@ -31,4 +31,4 @@ DartErrorHandleType GetErrorHandleType(Dart_Handle handle) {
   }
 }
 
-} // namespace tonic
+}  // namespace tonic

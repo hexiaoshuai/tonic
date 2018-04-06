@@ -14,12 +14,12 @@ namespace filesystem {
 std::string GetCurrentDirectory();
 
 // Returns whether the given path is a directory.
-bool IsDirectory(const std::string &path);
+bool IsDirectory(const std::string& path);
 
 // Create a directory at the given path. If necessary, creates any intermediary
 // directory.
-bool CreateDirectory(const std::string &path);
+bool CreateDirectory(const std::string& path);
 
-} // namespace filesystem
+}  // namespace filesystem
 
-#endif // FILESYSTEM_DIRECTORY_H_
+#endif  // FILESYSTEM_DIRECTORY_H_

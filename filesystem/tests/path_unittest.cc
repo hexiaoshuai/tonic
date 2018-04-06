@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "filesystem/path.h"
 #include "filesystem/build_config.h"
 #include "filesystem/directory.h"
-#include "filesystem/path.h"
 #include "filesystem/scoped_temp_dir.h"
 #include "gtest/gtest.h"
 
@@ -231,4 +231,4 @@ TEST(Path, DeletePathRecursively) {
   EXPECT_FALSE(IsDirectory(sub_sub_dir1));
 }
 
-} // namespace filesystem
+}  // namespace filesystem

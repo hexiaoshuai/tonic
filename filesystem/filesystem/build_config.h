@@ -27,7 +27,7 @@
 #define OS_MACOSX 1
 #if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #define OS_IOS 1
-#endif // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #elif defined(__linux__)
 #define OS_LINUX 1
 // include a system header to pull in features.h for glibc/uclibc macros.
@@ -58,8 +58,8 @@
 
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
-#if defined(OS_MACOSX) || defined(OS_LINUX) || defined(OS_FREEBSD) ||          \
-    defined(OS_OPENBSD) || defined(OS_SOLARIS) || defined(OS_ANDROID) ||       \
+#if defined(OS_MACOSX) || defined(OS_LINUX) || defined(OS_FREEBSD) ||    \
+    defined(OS_OPENBSD) || defined(OS_SOLARIS) || defined(OS_ANDROID) || \
     defined(OS_NACL) || defined(OS_QNX)
 #define OS_POSIX 1
 #endif
@@ -107,4 +107,4 @@
 #error Please add support for your architecture in build/build_config.h
 #endif
 
-#endif // FILESYSTEM_BUILD_CONFIG_H_
+#endif  // FILESYSTEM_BUILD_CONFIG_H_

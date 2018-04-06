@@ -22,29 +22,35 @@ namespace {
 pthread_key_t g_queue_key;
 pthread_once_t g_queue_key_once = PTHREAD_ONCE_INIT;
 
-void MakeKey() { pthread_key_create(&g_queue_key, nullptr); }
+void MakeKey() {
+  pthread_key_create(&g_queue_key, nullptr);
+}
 
-void SetQueue(DartMicrotaskQueue *queue) {
+void SetQueue(DartMicrotaskQueue* queue) {
   pthread_once(&g_queue_key_once, MakeKey);
   pthread_setspecific(g_queue_key, queue);
 }
 
-DartMicrotaskQueue *GetQueue() {
-  return static_cast<tonic::DartMicrotaskQueue *>(
+DartMicrotaskQueue* GetQueue() {
+  return static_cast<tonic::DartMicrotaskQueue*>(
       pthread_getspecific(g_queue_key));
 }
 
 #else
 
-thread_local DartMicrotaskQueue *g_queue = nullptr;
+thread_local DartMicrotaskQueue* g_queue = nullptr;
 
-void SetQueue(DartMicrotaskQueue *queue) { g_queue = queue; }
+void SetQueue(DartMicrotaskQueue* queue) {
+  g_queue = queue;
+}
 
-DartMicrotaskQueue *GetQueue() { return g_queue; }
+DartMicrotaskQueue* GetQueue() {
+  return g_queue;
+}
 
 #endif
 
-} // namespace
+}  // namespace
 
 DartMicrotaskQueue::DartMicrotaskQueue() : last_error_(kNoError) {}
 
@@ -54,7 +60,7 @@ void DartMicrotaskQueue::StartForCurrentThread() {
   SetQueue(new DartMicrotaskQueue());
 }
 
-DartMicrotaskQueue *DartMicrotaskQueue::GetForCurrentThread() {
+DartMicrotaskQueue* DartMicrotaskQueue::GetForCurrentThread() {
   return GetQueue();
 }
 
@@ -66,7 +72,7 @@ void DartMicrotaskQueue::RunMicrotasks() {
   while (!queue_.empty()) {
     MicrotaskQueue local;
     std::swap(queue_, local);
-    for (const auto &callback : local) {
+    for (const auto& callback : local) {
       if (auto dart_state = callback.dart_state().lock()) {
         DartState::Scope dart_scope(dart_state.get());
         Dart_Handle result = DartInvokeVoid(callback.value());
@@ -85,6 +91,8 @@ void DartMicrotaskQueue::Destroy() {
   delete this;
 }
 
-DartErrorHandleType DartMicrotaskQueue::GetLastError() { return last_error_; }
+DartErrorHandleType DartMicrotaskQueue::GetLastError() {
+  return last_error_;
+}
 
-} // namespace tonic
+}  // namespace tonic

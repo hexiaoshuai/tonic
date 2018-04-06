@@ -36,4 +36,4 @@ TEST(FileDescriptor, WriteAndRead) {
   EXPECT_EQ(string, buffer.data());
 }
 
-} // namespace filesystem
+}  // namespace filesystem

@@ -15,7 +15,8 @@ namespace tonic {
 
 // DartConvert converts types back and forth from Sky to Dart. The template
 // parameter |T| determines what kind of type conversion to perform.
-template <typename T, typename Enable = void> struct DartConverter {};
+template <typename T, typename Enable = void>
+struct DartConverter {};
 
 // This is to work around the fact that typedefs do not create new types. If you
 // have a typedef, and want it to use a different converter, specialize this
@@ -27,7 +28,8 @@ template <typename T, typename Enable = void> struct DartConverter {};
 //     using ConverterType = ColorConverterType;
 //     using ValueType = ColorType;
 //   };
-template <typename T> struct DartConverterTypes {
+template <typename T>
+struct DartConverterTypes {
   using ConverterType = T;
   using ValueType = T;
 };
@@ -35,7 +37,8 @@ template <typename T> struct DartConverterTypes {
 ////////////////////////////////////////////////////////////////////////////////
 // Boolean
 
-template <> struct DartConverter<bool> {
+template <>
+struct DartConverter<bool> {
   static Dart_Handle ToDart(bool val) { return Dart_NewBoolean(val); }
 
   static void SetReturnValue(Dart_NativeArguments args, bool val) {
@@ -48,8 +51,9 @@ template <> struct DartConverter<bool> {
     return result;
   }
 
-  static bool FromArguments(Dart_NativeArguments args, int index,
-                            Dart_Handle &exception) {
+  static bool FromArguments(Dart_NativeArguments args,
+                            int index,
+                            Dart_Handle& exception) {
     bool result = false;
     Dart_GetNativeBooleanArgument(args, index, &result);
     return result;
@@ -59,7 +63,8 @@ template <> struct DartConverter<bool> {
 ////////////////////////////////////////////////////////////////////////////////
 // Numbers
 
-template <typename T> struct DartConverterInteger {
+template <typename T>
+struct DartConverterInteger {
   static Dart_Handle ToDart(T val) { return Dart_NewInteger(val); }
 
   static void SetReturnValue(Dart_NativeArguments args, T val) {
@@ -72,15 +77,17 @@ template <typename T> struct DartConverterInteger {
     return static_cast<T>(result);
   }
 
-  static T FromArguments(Dart_NativeArguments args, int index,
-                         Dart_Handle &exception) {
+  static T FromArguments(Dart_NativeArguments args,
+                         int index,
+                         Dart_Handle& exception) {
     int64_t result = 0;
     Dart_GetNativeIntegerArgument(args, index, &result);
     return static_cast<T>(result);
   }
 };
 
-template <> struct DartConverter<int> : public DartConverterInteger<int> {};
+template <>
+struct DartConverter<int> : public DartConverterInteger<int> {};
 
 template <>
 struct DartConverter<long int> : public DartConverterInteger<long int> {};
@@ -95,7 +102,8 @@ template <>
 struct DartConverter<unsigned long>
     : public DartConverterInteger<unsigned long> {};
 
-template <> struct DartConverter<unsigned long long> {
+template <>
+struct DartConverter<unsigned long long> {
   // TODO(abarth): The Dart VM API doesn't yet have an entry-point for
   // an unsigned 64-bit type. We will need to add a Dart API for
   // constructing an integer from uint64_t.
@@ -120,15 +128,17 @@ template <> struct DartConverter<unsigned long long> {
     return result;
   }
 
-  static unsigned long long FromArguments(Dart_NativeArguments args, int index,
-                                          Dart_Handle &exception) {
+  static unsigned long long FromArguments(Dart_NativeArguments args,
+                                          int index,
+                                          Dart_Handle& exception) {
     int64_t result = 0;
     Dart_GetNativeIntegerArgument(args, index, &result);
     return result;
   }
 };
 
-template <typename T> struct DartConverterFloatingPoint {
+template <typename T>
+struct DartConverterFloatingPoint {
   static Dart_Handle ToDart(T val) { return Dart_NewDouble(val); }
 
   static void SetReturnValue(Dart_NativeArguments args, T val) {
@@ -141,8 +151,9 @@ template <typename T> struct DartConverterFloatingPoint {
     return result;
   }
 
-  static T FromArguments(Dart_NativeArguments args, int index,
-                         Dart_Handle &exception) {
+  static T FromArguments(Dart_NativeArguments args,
+                         int index,
+                         Dart_Handle& exception) {
     double result = 0;
     Dart_GetNativeDoubleArgument(args, index, &result);
     return result;
@@ -176,8 +187,9 @@ struct DartConverter<T, typename std::enable_if<std::is_enum<T>::value>::type> {
     return static_cast<T>(result);
   }
 
-  static T FromArguments(Dart_NativeArguments args, int index,
-                         Dart_Handle &exception) {
+  static T FromArguments(Dart_NativeArguments args,
+                         int index,
+                         Dart_Handle& exception) {
     int64_t result = 0;
     Dart_GetNativeIntegerArgument(args, index, &result);
     return static_cast<T>(result);
@@ -187,39 +199,42 @@ struct DartConverter<T, typename std::enable_if<std::is_enum<T>::value>::type> {
 ////////////////////////////////////////////////////////////////////////////////
 // Strings
 
-template <> struct DartConverter<std::string> {
-  static Dart_Handle ToDart(const std::string &val) {
-    return Dart_NewStringFromUTF8(reinterpret_cast<const uint8_t *>(val.data()),
+template <>
+struct DartConverter<std::string> {
+  static Dart_Handle ToDart(const std::string& val) {
+    return Dart_NewStringFromUTF8(reinterpret_cast<const uint8_t*>(val.data()),
                                   val.length());
   }
 
   static void SetReturnValue(Dart_NativeArguments args,
-                             const std::string &val) {
+                             const std::string& val) {
     Dart_SetReturnValue(args, ToDart(val));
   }
 
   static std::string FromDart(Dart_Handle handle) {
-    uint8_t *data = nullptr;
+    uint8_t* data = nullptr;
     intptr_t length = 0;
     ;
     Dart_StringToUTF8(handle, &data, &length);
-    return std::string(reinterpret_cast<char *>(data), length);
+    return std::string(reinterpret_cast<char*>(data), length);
   }
 
-  static std::string FromArguments(Dart_NativeArguments args, int index,
-                                   Dart_Handle &exception) {
+  static std::string FromArguments(Dart_NativeArguments args,
+                                   int index,
+                                   Dart_Handle& exception) {
     return FromDart(Dart_GetNativeArgument(args, index));
   }
 };
 
-template <> struct DartConverter<std::u16string> {
-  static Dart_Handle ToDart(const std::u16string &val) {
+template <>
+struct DartConverter<std::u16string> {
+  static Dart_Handle ToDart(const std::u16string& val) {
     return Dart_NewStringFromUTF16(
-        reinterpret_cast<const uint16_t *>(val.data()), val.length());
+        reinterpret_cast<const uint16_t*>(val.data()), val.length());
   }
 
   static void SetReturnValue(Dart_NativeArguments args,
-                             const std::u16string &val) {
+                             const std::u16string& val) {
     Dart_SetReturnValue(args, ToDart(val));
   }
 
@@ -228,32 +243,35 @@ template <> struct DartConverter<std::u16string> {
     Dart_StringLength(handle, &length);
     std::vector<uint16_t> data(length);
     Dart_StringToUTF16(handle, data.data(), &length);
-    return std::u16string(reinterpret_cast<char16_t *>(data.data()), length);
+    return std::u16string(reinterpret_cast<char16_t*>(data.data()), length);
   }
 
-  static std::u16string FromArguments(Dart_NativeArguments args, int index,
-                                      Dart_Handle &exception) {
+  static std::u16string FromArguments(Dart_NativeArguments args,
+                                      int index,
+                                      Dart_Handle& exception) {
     return FromDart(Dart_GetNativeArgument(args, index));
   }
 };
 
-template <> struct DartConverter<const char *> {
-  static Dart_Handle ToDart(const char *val) {
+template <>
+struct DartConverter<const char*> {
+  static Dart_Handle ToDart(const char* val) {
     return Dart_NewStringFromCString(val);
   }
 
-  static void SetReturnValue(Dart_NativeArguments args, const char *val) {
+  static void SetReturnValue(Dart_NativeArguments args, const char* val) {
     Dart_SetReturnValue(args, ToDart(val));
   }
 
-  static const char *FromDart(Dart_Handle handle) {
-    const char *result = nullptr;
+  static const char* FromDart(Dart_Handle handle) {
+    const char* result = nullptr;
     Dart_StringToCString(handle, &result);
     return result;
   }
 
-  static const char *FromArguments(Dart_NativeArguments args, int index,
-                                   Dart_Handle &exception) {
+  static const char* FromArguments(Dart_NativeArguments args,
+                                   int index,
+                                   Dart_Handle& exception) {
     return FromDart(Dart_GetNativeArgument(args, index));
   }
 };
@@ -261,15 +279,17 @@ template <> struct DartConverter<const char *> {
 ////////////////////////////////////////////////////////////////////////////////
 // Collections
 
-template <typename T, typename Enable = void> struct DartListFactory {
+template <typename T, typename Enable = void>
+struct DartListFactory {
   static Dart_Handle NewList(intptr_t length) { return Dart_NewList(length); }
 };
 
-template <typename T> struct DartConverter<std::vector<T>> {
+template <typename T>
+struct DartConverter<std::vector<T>> {
   using ValueType = typename DartConverterTypes<T>::ValueType;
   using ConverterType = typename DartConverterTypes<T>::ConverterType;
 
-  static Dart_Handle ToDart(const std::vector<ValueType> &val) {
+  static Dart_Handle ToDart(const std::vector<ValueType>& val) {
     Dart_Handle list = DartListFactory<ValueType>::NewList(val.size());
     if (Dart_IsError(list))
       return list;
@@ -283,7 +303,7 @@ template <typename T> struct DartConverter<std::vector<T>> {
   }
 
   static void SetReturnValue(Dart_NativeArguments args,
-                             const std::vector<ValueType> &val) {
+                             const std::vector<ValueType>& val) {
     Dart_SetReturnValue(args, ToDart(val));
   }
 
@@ -313,8 +333,9 @@ template <typename T> struct DartConverter<std::vector<T>> {
     return result;
   }
 
-  static std::vector<ValueType>
-  FromArguments(Dart_NativeArguments args, int index, Dart_Handle &exception) {
+  static std::vector<ValueType> FromArguments(Dart_NativeArguments args,
+                                              int index,
+                                              Dart_Handle& exception) {
     return FromDart(Dart_GetNativeArgument(args, index));
   }
 };
@@ -322,7 +343,8 @@ template <typename T> struct DartConverter<std::vector<T>> {
 ////////////////////////////////////////////////////////////////////////////////
 // Dart_Handle
 
-template <> struct DartConverter<Dart_Handle> {
+template <>
+struct DartConverter<Dart_Handle> {
   static Dart_Handle ToDart(Dart_Handle val) { return val; }
 
   static void SetReturnValue(Dart_NativeArguments args, Dart_Handle val) {
@@ -331,8 +353,9 @@ template <> struct DartConverter<Dart_Handle> {
 
   static Dart_Handle FromDart(Dart_Handle handle) { return handle; }
 
-  static Dart_Handle FromArguments(Dart_NativeArguments args, int index,
-                                   Dart_Handle &exception) {
+  static Dart_Handle FromArguments(Dart_NativeArguments args,
+                                   int index,
+                                   Dart_Handle& exception) {
     return Dart_GetNativeArgument(args, index);
   }
 };
@@ -340,14 +363,15 @@ template <> struct DartConverter<Dart_Handle> {
 ////////////////////////////////////////////////////////////////////////////////
 // Convience wrappers using type inference
 
-template <typename T> Dart_Handle ToDart(const T &object) {
+template <typename T>
+Dart_Handle ToDart(const T& object) {
   return DartConverter<T>::ToDart(object);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // std::string support
 
-inline Dart_Handle StdStringToDart(const std::string &val) {
+inline Dart_Handle StdStringToDart(const std::string& val) {
   return DartConverter<std::string>::ToDart(val);
 }
 
@@ -356,10 +380,10 @@ inline std::string StdStringFromDart(Dart_Handle handle) {
 }
 
 // Alias Dart_NewStringFromCString for less typing.
-inline Dart_Handle ToDart(const char *val) {
+inline Dart_Handle ToDart(const char* val) {
   return Dart_NewStringFromCString(val);
 }
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_CONVERTER_TONIC_DART_CONVERTER_H_
+#endif  // LIB_CONVERTER_TONIC_DART_CONVERTER_H_

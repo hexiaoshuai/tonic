@@ -34,4 +34,4 @@ TEST(Directory, CreateDirectory) {
   EXPECT_TRUE(IsDirectory(abs_path));
 }
 
-} // namespace filesystem
+}  // namespace filesystem

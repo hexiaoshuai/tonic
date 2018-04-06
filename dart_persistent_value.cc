@@ -11,21 +11,23 @@ namespace tonic {
 
 DartPersistentValue::DartPersistentValue() : value_(nullptr) {}
 
-DartPersistentValue::DartPersistentValue(DartPersistentValue &&other)
+DartPersistentValue::DartPersistentValue(DartPersistentValue&& other)
     : dart_state_(other.dart_state_), value_(other.value_) {
   other.dart_state_.reset();
   other.value_ = nullptr;
 }
 
-DartPersistentValue::DartPersistentValue(DartState *dart_state,
+DartPersistentValue::DartPersistentValue(DartState* dart_state,
                                          Dart_Handle value)
     : value_(nullptr) {
   Set(dart_state, value);
 }
 
-DartPersistentValue::~DartPersistentValue() { Clear(); }
+DartPersistentValue::~DartPersistentValue() {
+  Clear();
+}
 
-void DartPersistentValue::Set(DartState *dart_state, Dart_Handle value) {
+void DartPersistentValue::Set(DartState* dart_state, Dart_Handle value) {
   TONIC_DCHECK(is_empty());
   dart_state_ = dart_state->GetWeakPtr();
   value_ = Dart_NewPersistentHandle(value);
@@ -58,4 +60,4 @@ Dart_Handle DartPersistentValue::Release() {
   Clear();
   return local;
 }
-} // namespace tonic
+}  // namespace tonic

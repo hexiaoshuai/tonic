@@ -12,7 +12,7 @@
 namespace filesystem {
 
 class Descriptor {
-public:
+ public:
   using Handle = int;
 
   Descriptor(Handle handle) : handle_(handle) {}
@@ -27,18 +27,18 @@ public:
 
   Handle get() { return handle_; }
 
-private:
+ private:
   Handle handle_ = -1;
 
-  Descriptor(Descriptor &) = delete;
+  Descriptor(Descriptor&) = delete;
 
-  void operator=(const Descriptor &) = delete;
+  void operator=(const Descriptor&) = delete;
 };
 
-bool WriteFileDescriptor(int fd, const char *data, ssize_t size);
+bool WriteFileDescriptor(int fd, const char* data, ssize_t size);
 
-ssize_t ReadFileDescriptor(int fd, char *data, ssize_t max_size);
+ssize_t ReadFileDescriptor(int fd, char* data, ssize_t max_size);
 
-} // namespace filesystem
+}  // namespace filesystem
 
-#endif // FILESYSTEM_FILE_DESCRIPTOR_H_
+#endif  // FILESYSTEM_FILE_DESCRIPTOR_H_

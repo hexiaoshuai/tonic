@@ -11,13 +11,14 @@
 
 namespace tonic {
 
-DartState::Scope::Scope(DartState *dart_state)
+DartState::Scope::Scope(DartState* dart_state)
     : scope_(dart_state->isolate()) {}
 
 DartState::Scope::~Scope() {}
 
 DartState::DartState(int dirfd)
-    : isolate_(nullptr), class_library_(new DartClassLibrary),
+    : isolate_(nullptr),
+      class_library_(new DartClassLibrary),
       message_handler_(new DartMessageHandler()),
       file_loader_(new FileLoader(dirfd)) {}
 
@@ -30,15 +31,17 @@ void DartState::SetIsolate(Dart_Isolate isolate) {
   DidSetIsolate();
 }
 
-DartState *DartState::From(Dart_Isolate isolate) {
-  return static_cast<DartState *>(Dart_IsolateData(isolate));
+DartState* DartState::From(Dart_Isolate isolate) {
+  return static_cast<DartState*>(Dart_IsolateData(isolate));
 }
 
-DartState *DartState::Current() {
-  return static_cast<DartState *>(Dart_CurrentIsolateData());
+DartState* DartState::Current() {
+  return static_cast<DartState*>(Dart_CurrentIsolateData());
 }
 
-std::weak_ptr<DartState> DartState::GetWeakPtr() { return shared_from_this(); }
+std::weak_ptr<DartState> DartState::GetWeakPtr() {
+  return shared_from_this();
+}
 
 void DartState::SetReturnCode(uint32_t return_code) {
   if (set_return_code_callback_) {
@@ -54,8 +57,9 @@ void DartState::SetReturnCodeCallback(std::function<void(uint32_t)> callback) {
 void DartState::DidSetIsolate() {}
 
 Dart_Handle DartState::HandleLibraryTag(Dart_LibraryTag tag,
-                                        Dart_Handle library, Dart_Handle url) {
+                                        Dart_Handle library,
+                                        Dart_Handle url) {
   return Current()->file_loader().HandleLibraryTag(tag, library, url);
 }
 
-} // namespace tonic
+}  // namespace tonic

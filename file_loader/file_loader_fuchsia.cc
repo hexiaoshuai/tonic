@@ -33,34 +33,34 @@ namespace {
 
 const size_t kFileSchemeLength = FileLoader::kFileURLPrefixLength - 2;
 
-} // namespace
+}  // namespace
 
-std::string FileLoader::SanitizePath(const std::string &url) {
+std::string FileLoader::SanitizePath(const std::string& url) {
   return SanitizeURIEscapedCharacters(url);
 }
 
-std::string FileLoader::CanonicalizeFileURL(const std::string &url) {
+std::string FileLoader::CanonicalizeFileURL(const std::string& url) {
   return url.substr(kFileSchemeLength);
 }
 
-bool FileLoader::ReadFileToString(const std::string &path,
-                                  std::string *result) {
+bool FileLoader::ReadFileToString(const std::string& path,
+                                  std::string* result) {
   if (dirfd_ == -1)
     return filesystem::ReadFileToString(path, result);
-  const char *cpath = path.c_str();
+  const char* cpath = path.c_str();
   const int offset = (cpath[0] == '/') ? 1 : 0;
   filesystem::Descriptor fd(openat(dirfd_, &cpath[offset], O_RDONLY));
   return filesystem::ReadFileDescriptorToString(fd.get(), result);
 }
 
-std::pair<uint8_t *, intptr_t>
-FileLoader::ReadFileToBytes(const std::string &path) {
+std::pair<uint8_t*, intptr_t> FileLoader::ReadFileToBytes(
+    const std::string& path) {
   if (dirfd_ == -1)
     return filesystem::ReadFileToBytes(path);
-  const char *cpath = path.c_str();
+  const char* cpath = path.c_str();
   const int offset = (cpath[0] == '/') ? 1 : 0;
   filesystem::Descriptor fd(openat(dirfd_, &cpath[offset], O_RDONLY));
   return filesystem::ReadFileDescriptorToBytes(fd.get());
 }
 
-} // namespace tonic
+}  // namespace tonic

@@ -12,17 +12,17 @@ namespace tonic {
 
 // DartIsolateScope is a helper class for entering and exiting a given isolate.
 class DartIsolateScope {
-public:
+ public:
   explicit DartIsolateScope(Dart_Isolate isolate);
   ~DartIsolateScope();
 
-private:
+ private:
   Dart_Isolate isolate_;
   Dart_Isolate previous_;
 
   TONIC_DISALLOW_COPY_AND_ASSIGN(DartIsolateScope);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_SCOPES_DART_ISOLATE_SCOPE_H_
+#endif  // LIB_TONIC_SCOPES_DART_ISOLATE_SCOPE_H_

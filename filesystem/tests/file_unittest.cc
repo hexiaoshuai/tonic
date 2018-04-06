@@ -53,5 +53,5 @@ TEST(File, IsFileAt) {
 }
 #endif
 
-} // namespace
-} // namespace filesystem
+}  // namespace
+}  // namespace filesystem

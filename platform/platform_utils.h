@@ -10,6 +10,6 @@ namespace tonic {
 // Calls the equivalent of exit(status) for a given platform.
 void PlatformExit(int status);
 
-}
+}  // namespace tonic
 
 #endif  // LIB_TONIC_PLATFORM_UTILS_H_

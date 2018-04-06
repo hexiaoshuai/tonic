@@ -16,45 +16,47 @@ namespace tonic {
 //
 // This is designed to be used with DartConverter only.
 class Uint8List {
-public:
+ public:
   explicit Uint8List(Dart_Handle list);
-  Uint8List(Uint8List &&other);
+  Uint8List(Uint8List&& other);
   Uint8List();
   ~Uint8List();
 
-  uint8_t &at(intptr_t i) {
+  uint8_t& at(intptr_t i) {
     TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
-  const uint8_t &at(intptr_t i) const {
+  const uint8_t& at(intptr_t i) const {
     TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
 
-  uint8_t &operator[](intptr_t i) { return at(i); }
-  const uint8_t &operator[](intptr_t i) const { return at(i); }
+  uint8_t& operator[](intptr_t i) { return at(i); }
+  const uint8_t& operator[](intptr_t i) const { return at(i); }
 
-  const uint8_t *data() const { return data_; }
+  const uint8_t* data() const { return data_; }
   intptr_t num_elements() const { return num_elements_; }
   Dart_Handle dart_handle() const { return dart_handle_; }
 
   void Release();
 
-private:
-  uint8_t *data_;
+ private:
+  uint8_t* data_;
   intptr_t num_elements_;
   Dart_Handle dart_handle_;
 
-  Uint8List(const Uint8List &other) = delete;
+  Uint8List(const Uint8List& other) = delete;
 };
 
-template <> struct DartConverter<Uint8List> {
+template <>
+struct DartConverter<Uint8List> {
   static void SetReturnValue(Dart_NativeArguments args, Uint8List val);
-  static Uint8List FromArguments(Dart_NativeArguments args, int index,
-                                 Dart_Handle &exception);
-  static Dart_Handle ToDart(const uint8_t *buffer, unsigned int length);
+  static Uint8List FromArguments(Dart_NativeArguments args,
+                                 int index,
+                                 Dart_Handle& exception);
+  static Dart_Handle ToDart(const uint8_t* buffer, unsigned int length);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_TYPED_DATA_UINT8_LIST_H_
+#endif  // LIB_TONIC_TYPED_DATA_UINT8_LIST_H_

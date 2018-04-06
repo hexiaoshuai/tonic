@@ -25,4 +25,4 @@
 #include <unistd.h>
 #endif
 
-#endif // FILESYSTEM_PORTABLE_UNISTD_H_
+#endif  // FILESYSTEM_PORTABLE_UNISTD_H_

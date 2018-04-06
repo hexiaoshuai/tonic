@@ -5,8 +5,8 @@
 #ifndef LIB_TONIC_PARSERS_PACKAGES_MAP_H_
 #define LIB_TONIC_PARSERS_PACKAGES_MAP_H_
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 namespace tonic {
 

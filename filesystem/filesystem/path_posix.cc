@@ -20,7 +20,7 @@
 namespace filesystem {
 namespace {
 
-size_t ResolveParentDirectoryTraversal(const std::string &path, size_t put) {
+size_t ResolveParentDirectoryTraversal(const std::string& path, size_t put) {
   if (put >= 2) {
     size_t previous_separator = path.rfind('/', put - 2);
     if (previous_separator != std::string::npos)
@@ -32,20 +32,20 @@ size_t ResolveParentDirectoryTraversal(const std::string &path, size_t put) {
   return 0;
 }
 
-void SafeCloseDir(DIR *dir) {
+void SafeCloseDir(DIR* dir) {
   if (dir)
     closedir(dir);
 }
 
-bool ForEachEntry(const std::string &path,
-                  std::function<bool(const std::string &path)> callback) {
+bool ForEachEntry(const std::string& path,
+                  std::function<bool(const std::string& path)> callback) {
   std::unique_ptr<DIR, decltype(&SafeCloseDir)> dir(opendir(path.c_str()),
                                                     SafeCloseDir);
   if (!dir.get())
     return false;
-  for (struct dirent *entry = readdir(dir.get()); entry != nullptr;
+  for (struct dirent* entry = readdir(dir.get()); entry != nullptr;
        entry = readdir(dir.get())) {
-    char *name = entry->d_name;
+    char* name = entry->d_name;
     if (name[0]) {
       if (name[0] == '.') {
         if (!name[1] || (name[1] == '.' && !name[2])) {
@@ -60,7 +60,7 @@ bool ForEachEntry(const std::string &path,
   return true;
 }
 
-} // namespace
+}  // namespace
 
 std::string SimplifyPath(std::string path) {
   if (path.empty())
@@ -153,15 +153,15 @@ std::string SimplifyPath(std::string path) {
   }
 
   if (put >= 2 && path[put - 1] == '/')
-    --put; // Trim trailing /
+    --put;  // Trim trailing /
   else if (put == 0)
-    return "."; // Use . for otherwise empty paths to treat them as relative.
+    return ".";  // Use . for otherwise empty paths to treat them as relative.
 
   path.resize(put);
   return path;
 }
 
-std::string AbsolutePath(const std::string &path) {
+std::string AbsolutePath(const std::string& path) {
   if (path.size() > 0) {
     if (path[0] == '/') {
       // Path is already absolute.
@@ -174,7 +174,7 @@ std::string AbsolutePath(const std::string &path) {
   }
 }
 
-std::string GetDirectoryName(const std::string &path) {
+std::string GetDirectoryName(const std::string& path) {
   size_t separator = path.rfind('/');
   if (separator == 0u)
     return "/";
@@ -183,14 +183,14 @@ std::string GetDirectoryName(const std::string &path) {
   return path.substr(0, separator);
 }
 
-std::string GetBaseName(const std::string &path) {
+std::string GetBaseName(const std::string& path) {
   size_t separator = path.rfind('/');
   if (separator == std::string::npos)
     return path;
   return path.substr(separator + 1);
 }
 
-bool DeletePath(const std::string &path, bool recursive) {
+bool DeletePath(const std::string& path, bool recursive) {
   struct stat stat_buffer;
   if (lstat(path.c_str(), &stat_buffer) != 0)
     return (errno == ENOENT || errno == ENOTDIR);
@@ -204,7 +204,7 @@ bool DeletePath(const std::string &path, bool recursive) {
   std::list<std::string> directories;
   directories.push_back(path);
   for (auto it = directories.begin(); it != directories.end(); ++it) {
-    if (!ForEachEntry(*it, [&directories](const std::string &child) {
+    if (!ForEachEntry(*it, [&directories](const std::string& child) {
           if (IsDirectory(child)) {
             directories.push_back(child);
           } else {
@@ -223,4 +223,4 @@ bool DeletePath(const std::string &path, bool recursive) {
   return true;
 }
 
-} // namespace filesystem
+}  // namespace filesystem

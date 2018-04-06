@@ -47,7 +47,7 @@ std::string ExtractPath(std::string url) {
   return url;
 }
 
-} // namespace
+}  // namespace
 
 FileLoader::FileLoader(int dirfd) : dirfd_(dirfd) {}
 
@@ -56,7 +56,7 @@ FileLoader::~FileLoader() {
     close(dirfd_);
 }
 
-std::string FileLoader::SanitizeURIEscapedCharacters(const std::string &str) {
+std::string FileLoader::SanitizeURIEscapedCharacters(const std::string& str) {
   std::string result;
   result.reserve(str.size());
   for (std::string::size_type i = 0; i < str.size(); ++i) {
@@ -76,7 +76,7 @@ std::string FileLoader::SanitizeURIEscapedCharacters(const std::string &str) {
   return result;
 }
 
-bool FileLoader::LoadPackagesMap(const std::string &packages) {
+bool FileLoader::LoadPackagesMap(const std::string& packages) {
   packages_ = packages;
   dependencies_.insert(packages_);
   std::string packages_source;
@@ -119,7 +119,8 @@ std::string FileLoader::GetFilePathForPackageURL(std::string url) {
 }
 
 Dart_Handle FileLoader::HandleLibraryTag(Dart_LibraryTag tag,
-                                         Dart_Handle library, Dart_Handle url) {
+                                         Dart_Handle library,
+                                         Dart_Handle url) {
   TONIC_DCHECK(Dart_IsNull(library) || Dart_IsLibrary(library) ||
                Dart_IsString(library));
   TONIC_DCHECK(Dart_IsString(url));
@@ -169,8 +170,8 @@ std::string FileLoader::GetFilePathForURL(std::string url) {
   return url;
 }
 
-std::string FileLoader::Fetch(const std::string &url,
-                              std::string *resolved_url) {
+std::string FileLoader::Fetch(const std::string& url,
+                              std::string* resolved_url) {
   std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
   if (path.empty()) {
     std::cerr << "error: Unable to read Dart source '" << url << "'."
@@ -194,7 +195,7 @@ std::string FileLoader::Fetch(const std::string &url,
   return source;
 }
 
-std::pair<uint8_t *, intptr_t> FileLoader::FetchBytes(const std::string &url) {
+std::pair<uint8_t*, intptr_t> FileLoader::FetchBytes(const std::string& url) {
   std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
   if (path.empty()) {
     std::cerr << "error: Unable to read Dart source '" << url << "'."
@@ -217,13 +218,13 @@ std::pair<uint8_t *, intptr_t> FileLoader::FetchBytes(const std::string &url) {
   return result;
 }
 
-Dart_Handle FileLoader::LoadLibrary(const std::string &url) {
+Dart_Handle FileLoader::LoadLibrary(const std::string& url) {
   std::string resolved_url;
   Dart_Handle source = ToDart(Fetch(url, &resolved_url));
   return Dart_LoadLibrary(ToDart(url), ToDart(resolved_url), source, 0, 0);
 }
 
-Dart_Handle FileLoader::LoadScript(const std::string &url) {
+Dart_Handle FileLoader::LoadScript(const std::string& url) {
   std::string resolved_url;
   Dart_Handle source = ToDart(Fetch(url, &resolved_url));
   Dart_Handle result =
@@ -241,15 +242,17 @@ Dart_Handle FileLoader::Import(Dart_Handle url) {
 }
 
 namespace {
-void ReleaseFetchedBytes(uint8_t *buffer) { free(buffer); }
-} // namespace
+void ReleaseFetchedBytes(uint8_t* buffer) {
+  free(buffer);
+}
+}  // namespace
 
 Dart_Handle FileLoader::Kernel(Dart_Handle url) {
   std::string url_string = StdStringFromDart(url);
-  std::pair<uint8_t *, intptr_t> fetched_result = FetchBytes(url_string);
+  std::pair<uint8_t*, intptr_t> fetched_result = FetchBytes(url_string);
   // TODO(aam): With dartbug.com/28057 addressed, there should be no need
   // to pass ownership of fetched program through Dart_ReadKernelBinary.
-  void *kernel_program = Dart_ReadKernelBinary(
+  void* kernel_program = Dart_ReadKernelBinary(
       fetched_result.first, fetched_result.second, ReleaseFetchedBytes);
   if (kernel_program == NULL) {
     return Dart_NewApiError("Failed to read kernel binary");
@@ -274,7 +277,7 @@ void FileLoader::SetPackagesUrl(Dart_Handle url) {
     LoadPackagesMap(packages());
     return;
   }
-  const std::string &packages_url = StdStringFromDart(url);
+  const std::string& packages_url = StdStringFromDart(url);
   LoadPackagesMap(packages_url);
 }
 
@@ -283,8 +286,8 @@ std::string FileLoader::GetFilePathForFileURL(std::string url) {
   return url.substr(FileLoader::kFileURLPrefixLength);
 }
 
-std::string FileLoader::GetFileURLForPath(const std::string &path) {
+std::string FileLoader::GetFileURLForPath(const std::string& path) {
   return std::string(FileLoader::kFileURLPrefix) + path;
 }
 
-} // namespace tonic
+}  // namespace tonic

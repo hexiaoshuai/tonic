@@ -11,11 +11,13 @@
 
 namespace tonic {
 
-DartWrappable::~DartWrappable() { TONIC_CHECK(!dart_wrapper_); }
+DartWrappable::~DartWrappable() {
+  TONIC_CHECK(!dart_wrapper_);
+}
 
-Dart_Handle DartWrappable::CreateDartWrapper(DartState *dart_state) {
+Dart_Handle DartWrappable::CreateDartWrapper(DartState* dart_state) {
   TONIC_DCHECK(!dart_wrapper_);
-  const DartWrapperInfo &info = GetDartWrapperInfo();
+  const DartWrapperInfo& info = GetDartWrapperInfo();
 
   Dart_PersistentHandle type = dart_state->class_library().GetClass(info);
   TONIC_DCHECK(!LogIfError(type));
@@ -27,7 +29,7 @@ Dart_Handle DartWrappable::CreateDartWrapper(DartState *dart_state) {
       Dart_AllocateWithNativeFields(type, kNumberOfNativeFields, native_fields);
   TONIC_DCHECK(!LogIfError(wrapper));
 
-  this->RetainDartWrappableReference(); // Balanced in FinalizeDartWrapper.
+  this->RetainDartWrappableReference();  // Balanced in FinalizeDartWrapper.
   dart_wrapper_ = Dart_NewWeakPersistentHandle(
       wrapper, this, GetAllocationSize(), &FinalizeDartWrapper);
 
@@ -46,13 +48,13 @@ void DartWrappable::AssociateWithDartWrapper(Dart_NativeArguments args) {
   TONIC_CHECK(!native_fields[kPeerIndex]);
   TONIC_CHECK(!native_fields[kWrapperInfoIndex]);
 
-  const DartWrapperInfo &info = GetDartWrapperInfo();
+  const DartWrapperInfo& info = GetDartWrapperInfo();
   TONIC_CHECK(!LogIfError(Dart_SetNativeInstanceField(
       wrapper, kPeerIndex, reinterpret_cast<intptr_t>(this))));
   TONIC_CHECK(!LogIfError(Dart_SetNativeInstanceField(
       wrapper, kWrapperInfoIndex, reinterpret_cast<intptr_t>(&info))));
 
-  this->RetainDartWrappableReference(); // Balanced in FinalizeDartWrapper.
+  this->RetainDartWrappableReference();  // Balanced in FinalizeDartWrapper.
   dart_wrapper_ = Dart_NewWeakPersistentHandle(
       wrapper, this, GetAllocationSize(), &FinalizeDartWrapper);
 }
@@ -68,36 +70,36 @@ void DartWrappable::ClearDartWrapper() {
   this->ReleaseDartWrappableReference();
 }
 
-void DartWrappable::FinalizeDartWrapper(void *isolate_callback_data,
+void DartWrappable::FinalizeDartWrapper(void* isolate_callback_data,
                                         Dart_WeakPersistentHandle wrapper,
-                                        void *peer) {
-  DartWrappable *wrappable = reinterpret_cast<DartWrappable *>(peer);
+                                        void* peer) {
+  DartWrappable* wrappable = reinterpret_cast<DartWrappable*>(peer);
   wrappable->dart_wrapper_ = nullptr;
-  wrappable->ReleaseDartWrappableReference(); // Balanced in CreateDartWrapper.
+  wrappable->ReleaseDartWrappableReference();  // Balanced in CreateDartWrapper.
 }
 
 size_t DartWrappable::GetAllocationSize() {
   return GetDartWrapperInfo().size_in_bytes;
 }
 
-Dart_PersistentHandle
-DartWrappable::GetTypeForWrapper(tonic::DartState *dart_state,
-                                 const tonic::DartWrapperInfo &wrapper_info) {
+Dart_PersistentHandle DartWrappable::GetTypeForWrapper(
+    tonic::DartState* dart_state,
+    const tonic::DartWrapperInfo& wrapper_info) {
   return dart_state->class_library().GetClass(wrapper_info);
 }
 
-DartWrappable *DartConverterWrappable::FromDart(Dart_Handle handle) {
+DartWrappable* DartConverterWrappable::FromDart(Dart_Handle handle) {
   intptr_t peer = 0;
   Dart_Handle result =
       Dart_GetNativeInstanceField(handle, DartWrappable::kPeerIndex, &peer);
   if (Dart_IsError(result))
     return nullptr;
-  return reinterpret_cast<DartWrappable *>(peer);
+  return reinterpret_cast<DartWrappable*>(peer);
 }
 
-DartWrappable *DartConverterWrappable::FromArguments(Dart_NativeArguments args,
+DartWrappable* DartConverterWrappable::FromArguments(Dart_NativeArguments args,
                                                      int index,
-                                                     Dart_Handle &exception) {
+                                                     Dart_Handle& exception) {
   intptr_t native_fields[DartWrappable::kNumberOfNativeFields];
   Dart_Handle result = Dart_GetNativeFieldsOfArgument(
       args, index, DartWrappable::kNumberOfNativeFields, native_fields);
@@ -107,8 +109,8 @@ DartWrappable *DartConverterWrappable::FromArguments(Dart_NativeArguments args,
   }
   if (!native_fields[DartWrappable::kPeerIndex])
     return nullptr;
-  return reinterpret_cast<DartWrappable *>(
+  return reinterpret_cast<DartWrappable*>(
       native_fields[DartWrappable::kPeerIndex]);
 }
 
-} // namespace tonic
+}  // namespace tonic

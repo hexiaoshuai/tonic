@@ -10,21 +10,21 @@
 namespace filesystem {
 
 class ScopedTempDir {
-public:
+ public:
   ScopedTempDir();
 
   explicit ScopedTempDir(std::string parent_path);
 
   ~ScopedTempDir();
 
-  const std::string &path();
+  const std::string& path();
 
-  bool NewTempFile(std::string *output);
+  bool NewTempFile(std::string* output);
 
-private:
+ private:
   std::string directory_path_;
 };
 
-} // namespace filesystem
+}  // namespace filesystem
 
-#endif // FILESYSTEM_SCOPED_TEMP_DIR_H_
+#endif  // FILESYSTEM_SCOPED_TEMP_DIR_H_

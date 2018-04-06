@@ -25,13 +25,13 @@ class FileLoader;
 //
 // DartState is analogous to gin::PerIsolateData and JSC::ExecState.
 class DartState : public std::enable_shared_from_this<DartState> {
-public:
+ public:
   class Scope {
-  public:
-    Scope(DartState *dart_state);
+   public:
+    Scope(DartState* dart_state);
     ~Scope();
 
-  private:
+   private:
     DartIsolateScope scope_;
     DartApiScope api_scope_;
   };
@@ -39,17 +39,17 @@ public:
   DartState(int dirfd = -1);
   virtual ~DartState();
 
-  static DartState *From(Dart_Isolate isolate);
-  static DartState *Current();
+  static DartState* From(Dart_Isolate isolate);
+  static DartState* Current();
 
   std::weak_ptr<DartState> GetWeakPtr();
 
   Dart_Isolate isolate() { return isolate_; }
   void SetIsolate(Dart_Isolate isolate);
 
-  DartClassLibrary &class_library() { return *class_library_; }
-  DartMessageHandler &message_handler() { return *message_handler_; }
-  FileLoader &file_loader() { return *file_loader_; }
+  DartClassLibrary& class_library() { return *class_library_; }
+  DartMessageHandler& message_handler() { return *message_handler_; }
+  FileLoader& file_loader() { return *file_loader_; }
 
   void SetReturnCode(uint32_t return_code);
   void SetReturnCodeCallback(std::function<void(uint32_t)> callback);
@@ -57,10 +57,11 @@ public:
 
   virtual void DidSetIsolate();
 
-  static Dart_Handle HandleLibraryTag(Dart_LibraryTag tag, Dart_Handle library,
+  static Dart_Handle HandleLibraryTag(Dart_LibraryTag tag,
+                                      Dart_Handle library,
                                       Dart_Handle url);
 
-private:
+ private:
   Dart_Isolate isolate_;
   std::unique_ptr<DartClassLibrary> class_library_;
   std::unique_ptr<DartMessageHandler> message_handler_;
@@ -68,10 +69,10 @@ private:
   std::function<void(uint32_t)> set_return_code_callback_;
   bool has_set_return_code_;
 
-protected:
+ protected:
   TONIC_DISALLOW_COPY_AND_ASSIGN(DartState);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_DART_STATE_H_
+#endif  // LIB_TONIC_DART_STATE_H_

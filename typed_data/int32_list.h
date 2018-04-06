@@ -16,44 +16,46 @@ namespace tonic {
 //
 // This is designed to be used with DartConverter only.
 class Int32List {
-public:
+ public:
   explicit Int32List(Dart_Handle list);
-  Int32List(Int32List &&other);
+  Int32List(Int32List&& other);
   Int32List();
   ~Int32List();
 
-  int32_t &at(intptr_t i) {
+  int32_t& at(intptr_t i) {
     TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
-  const int32_t &at(intptr_t i) const {
+  const int32_t& at(intptr_t i) const {
     TONIC_CHECK(i < num_elements_);
     return data_[i];
   }
 
-  int32_t &operator[](intptr_t i) { return at(i); }
-  const int32_t &operator[](intptr_t i) const { return at(i); }
+  int32_t& operator[](intptr_t i) { return at(i); }
+  const int32_t& operator[](intptr_t i) const { return at(i); }
 
-  const int32_t *data() const { return data_; }
+  const int32_t* data() const { return data_; }
   intptr_t num_elements() const { return num_elements_; }
   Dart_Handle dart_handle() const { return dart_handle_; }
 
   void Release();
 
-private:
-  int32_t *data_;
+ private:
+  int32_t* data_;
   intptr_t num_elements_;
   Dart_Handle dart_handle_;
 
-  Int32List(const Int32List &other) = delete;
+  Int32List(const Int32List& other) = delete;
 };
 
-template <> struct DartConverter<Int32List> {
+template <>
+struct DartConverter<Int32List> {
   static void SetReturnValue(Dart_NativeArguments args, Int32List val);
-  static Int32List FromArguments(Dart_NativeArguments args, int index,
-                                 Dart_Handle &exception);
+  static Int32List FromArguments(Dart_NativeArguments args,
+                                 int index,
+                                 Dart_Handle& exception);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_TYPED_DATA_INT32_LIST_H_
+#endif  // LIB_TONIC_TYPED_DATA_INT32_LIST_H_

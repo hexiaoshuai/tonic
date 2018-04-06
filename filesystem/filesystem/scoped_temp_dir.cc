@@ -44,7 +44,7 @@ ScopedTempDir::ScopedTempDir(std::string parent_path) {
   }
 #else
   if (parent_path.empty()) {
-    const char *env_var = getenv("TMPDIR");
+    const char* env_var = getenv("TMPDIR");
     parent_path = env_var ? std::string{env_var} : "/tmp";
   }
   // mkdtemp replaces "XXXXXX" so that the resulting directory path is unique.
@@ -61,9 +61,11 @@ ScopedTempDir::~ScopedTempDir() {
   }
 }
 
-const std::string &ScopedTempDir::path() { return directory_path_; }
+const std::string& ScopedTempDir::path() {
+  return directory_path_;
+}
 
-bool ScopedTempDir::NewTempFile(std::string *output) {
+bool ScopedTempDir::NewTempFile(std::string* output) {
 #if defined(OS_WIN)
   char buffer[MAX_PATH];
   UINT ret = GetTempFileNameA(directory_path_.c_str(), "", 0, buffer);
@@ -81,4 +83,4 @@ bool ScopedTempDir::NewTempFile(std::string *output) {
 #endif
 }
 
-} // namespace filesystem
+}  // namespace filesystem

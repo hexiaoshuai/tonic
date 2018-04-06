@@ -17,8 +17,8 @@ DartClassLibrary::~DartClassLibrary() {
   // isolate dies.
 }
 
-Dart_PersistentHandle DartClassLibrary::GetClass(const DartWrapperInfo &info) {
-  const auto &result = info_cache_.insert(std::make_pair(&info, nullptr));
+Dart_PersistentHandle DartClassLibrary::GetClass(const DartWrapperInfo& info) {
+  const auto& result = info_cache_.insert(std::make_pair(&info, nullptr));
   if (!result.second) {
     // Already present, return value.
     return result.first->second;
@@ -27,11 +27,11 @@ Dart_PersistentHandle DartClassLibrary::GetClass(const DartWrapperInfo &info) {
                           &result.first->second);
 }
 
-Dart_PersistentHandle
-DartClassLibrary::GetClass(const std::string &library_name,
-                           const std::string &interface_name) {
+Dart_PersistentHandle DartClassLibrary::GetClass(
+    const std::string& library_name,
+    const std::string& interface_name) {
   auto key = std::make_pair(library_name, interface_name);
-  const auto &result = name_cache_.insert(std::make_pair(key, nullptr));
+  const auto& result = name_cache_.insert(std::make_pair(key, nullptr));
   if (!result.second) {
     // Already present, return value.
     return result.first->second;
@@ -40,10 +40,10 @@ DartClassLibrary::GetClass(const std::string &library_name,
                           &result.first->second);
 }
 
-Dart_PersistentHandle
-DartClassLibrary::GetAndCacheClass(const char *library_name,
-                                   const char *interface_name,
-                                   Dart_PersistentHandle *cache_slot) {
+Dart_PersistentHandle DartClassLibrary::GetAndCacheClass(
+    const char* library_name,
+    const char* interface_name,
+    Dart_PersistentHandle* cache_slot) {
   auto it = providers_.find(library_name);
   TONIC_DCHECK(it != providers_.end());
 
@@ -52,4 +52,4 @@ DartClassLibrary::GetAndCacheClass(const char *library_name,
   return *cache_slot;
 }
 
-} // namespace tonic
+}  // namespace tonic

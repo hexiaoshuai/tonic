@@ -8,25 +8,25 @@
 #include <cassert>
 #include <cstdio>
 
-#define TONIC_DISALLOW_COPY(TypeName) TypeName(const TypeName &) = delete;
+#define TONIC_DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete;
 
-#define TONIC_DISALLOW_ASSIGN(TypeName)                                        \
-  void operator=(const TypeName &) = delete;
+#define TONIC_DISALLOW_ASSIGN(TypeName) \
+  void operator=(const TypeName&) = delete;
 
-#define TONIC_DISALLOW_COPY_AND_ASSIGN(TypeName)                               \
-  TONIC_DISALLOW_COPY(TypeName)                                                \
+#define TONIC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TONIC_DISALLOW_COPY(TypeName)                  \
   TONIC_DISALLOW_ASSIGN(TypeName)
 
 #ifndef NDEBUG
 #define TONIC_DCHECK assert
-#else // NDEBUG
+#else  // NDEBUG
 #define TONIC_DCHECK (void)
-#endif // NDEBUG
+#endif  // NDEBUG
 
 #define TONIC_CHECK assert
 
 #ifndef TONIC_LOG
 #define TONIC_LOG(message, ...) printf(message "\n", ##__VA_ARGS__);
-#endif // TONIC_LOG
+#endif  // TONIC_LOG
 
-#endif // TONIC_COMMON_MACROS_H_
+#endif  // TONIC_COMMON_MACROS_H_

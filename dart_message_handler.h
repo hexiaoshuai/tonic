@@ -14,7 +14,7 @@ namespace tonic {
 class DartState;
 
 class DartMessageHandler {
-public:
+ public:
   using TaskDispatcher = std::function<void(std::function<void(void)>)>;
 
   DartMessageHandler();
@@ -39,11 +39,11 @@ public:
 
   DartErrorHandleType isolate_last_error() const { return isolate_last_error_; }
 
-protected:
+ protected:
   // Called from an unknown thread for each message.
-  void OnMessage(DartState *dart_state);
+  void OnMessage(DartState* dart_state);
   // By default, called on the task runner's thread for each message.
-  void OnHandleMessage(DartState *dart_state);
+  void OnHandleMessage(DartState* dart_state);
 
   bool handled_first_message() const { return handled_first_message_; }
 
@@ -59,10 +59,10 @@ protected:
   TaskDispatcher task_dispatcher_;
   std::function<void()> message_epilogue_;
 
-private:
+ private:
   static void MessageNotifyCallback(Dart_Isolate dest_isolate);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_DART_MESSAGE_HANDLER_H_
+#endif  // LIB_TONIC_DART_MESSAGE_HANDLER_H_

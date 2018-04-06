@@ -17,12 +17,12 @@ struct UniqueHandleTraits {
   static void Free(HANDLE value) { CloseHandle(value); }
 };
 
-bool ReadSymbolicLink(const std::string &path, std::string *resolved_path) {
+bool ReadSymbolicLink(const std::string& path, std::string* resolved_path) {
   FXL_CHECK(false) << "Unimplemented";
   return false;
 }
 
-std::string GetAbsoluteFilePath(const std::string &path) {
+std::string GetAbsoluteFilePath(const std::string& path) {
   fxl::UniqueObject<HANDLE, UniqueHandleTraits> file(
       CreateFileA(path.c_str(), FILE_READ_ATTRIBUTES,
                   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
@@ -41,4 +41,4 @@ std::string GetAbsoluteFilePath(const std::string &path) {
   return result;
 }
 
-} // namespace filesystem
+}  // namespace filesystem

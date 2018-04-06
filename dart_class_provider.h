@@ -12,18 +12,18 @@ namespace tonic {
 class DartState;
 
 class DartClassProvider {
-public:
-  DartClassProvider(DartState *dart_state, const char *library_name);
+ public:
+  DartClassProvider(DartState* dart_state, const char* library_name);
   ~DartClassProvider();
 
-  Dart_Handle GetClassByName(const char *class_name);
+  Dart_Handle GetClassByName(const char* class_name);
 
-private:
+ private:
   DartPersistentValue library_;
 
   TONIC_DISALLOW_COPY_AND_ASSIGN(DartClassProvider);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_DART_CLASS_PROVIDER_H_
+#endif  // LIB_TONIC_DART_CLASS_PROVIDER_H_

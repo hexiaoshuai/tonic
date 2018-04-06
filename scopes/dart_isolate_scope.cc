@@ -27,4 +27,4 @@ DartIsolateScope::~DartIsolateScope() {
     Dart_EnterIsolate(previous_);
 }
 
-} // namespace tonic
+}  // namespace tonic

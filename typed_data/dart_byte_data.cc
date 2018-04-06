@@ -23,17 +23,20 @@ DartByteData::DartByteData(Dart_Handle list)
     Dart_ThrowException(ToDart("Non-genuine ByteData passed to engine."));
 }
 
-DartByteData::DartByteData(DartByteData &&other)
-    : data_(other.data_), length_in_bytes_(other.length_in_bytes_),
+DartByteData::DartByteData(DartByteData&& other)
+    : data_(other.data_),
+      length_in_bytes_(other.length_in_bytes_),
       dart_handle_(other.dart_handle_) {
   other.data_ = nullptr;
   other.dart_handle_ = nullptr;
 }
 
-DartByteData::~DartByteData() { Release(); }
+DartByteData::~DartByteData() {
+  Release();
+}
 
 std::vector<char> DartByteData::Copy() const {
-  const char *ptr = static_cast<const char *>(data_);
+  const char* ptr = static_cast<const char*>(data_);
   return std::vector<char>(ptr, ptr + length_in_bytes_);
 }
 
@@ -44,9 +47,10 @@ void DartByteData::Release() const {
   }
 }
 
-DartByteData
-DartConverter<DartByteData>::FromArguments(Dart_NativeArguments args, int index,
-                                           Dart_Handle &exception) {
+DartByteData DartConverter<DartByteData>::FromArguments(
+    Dart_NativeArguments args,
+    int index,
+    Dart_Handle& exception) {
   Dart_Handle data = Dart_GetNativeArgument(args, index);
   TONIC_DCHECK(!LogIfError(data));
   return DartByteData(data);
@@ -57,4 +61,4 @@ void DartConverter<DartByteData>::SetReturnValue(Dart_NativeArguments args,
   Dart_SetReturnValue(args, val.dart_handle());
 }
 
-} // namespace tonic
+}  // namespace tonic

@@ -13,14 +13,14 @@
 namespace tonic {
 
 class DartByteData {
-public:
+ public:
   explicit DartByteData(Dart_Handle list);
-  DartByteData(DartByteData &&other);
+  DartByteData(DartByteData&& other);
   DartByteData();
   ~DartByteData();
 
-  const void *data() const { return data_; }
-  void *data() { return data_; }
+  const void* data() const { return data_; }
+  void* data() { return data_; }
   size_t length_in_bytes() const { return length_in_bytes_; }
   Dart_Handle dart_handle() const { return dart_handle_; }
 
@@ -29,20 +29,22 @@ public:
 
   explicit operator bool() const { return data_ != nullptr; }
 
-private:
-  mutable void *data_;
+ private:
+  mutable void* data_;
   intptr_t length_in_bytes_;
   Dart_Handle dart_handle_;
 
-  DartByteData(const DartByteData &other) = delete;
+  DartByteData(const DartByteData& other) = delete;
 };
 
-template <> struct DartConverter<DartByteData> {
+template <>
+struct DartConverter<DartByteData> {
   static void SetReturnValue(Dart_NativeArguments args, DartByteData val);
-  static DartByteData FromArguments(Dart_NativeArguments args, int index,
-                                    Dart_Handle &exception);
+  static DartByteData FromArguments(Dart_NativeArguments args,
+                                    int index,
+                                    Dart_Handle& exception);
 };
 
-} // namespace tonic
+}  // namespace tonic
 
-#endif // LIB_TONIC_TYPED_DATA_DART_BYTE_DATA_H_
+#endif  // LIB_TONIC_TYPED_DATA_DART_BYTE_DATA_H_

@@ -27,26 +27,26 @@ namespace {
 
 const size_t kFileSchemeLength = FileLoader::kFileURLPrefixLength - 2;
 
-} // namespace
+}  // namespace
 
-std::string FileLoader::SanitizePath(const std::string &url) {
+std::string FileLoader::SanitizePath(const std::string& url) {
   return SanitizeURIEscapedCharacters(url);
 }
 
-std::string FileLoader::CanonicalizeFileURL(const std::string &url) {
+std::string FileLoader::CanonicalizeFileURL(const std::string& url) {
   return url.substr(kFileSchemeLength);
 }
 
-bool FileLoader::ReadFileToString(const std::string &path,
-                                  std::string *result) {
+bool FileLoader::ReadFileToString(const std::string& path,
+                                  std::string* result) {
   TONIC_DCHECK(dirfd_ == -1);
   return filesystem::ReadFileToString(path, result);
 }
 
-std::pair<uint8_t *, intptr_t>
-FileLoader::ReadFileToBytes(const std::string &path) {
+std::pair<uint8_t*, intptr_t> FileLoader::ReadFileToBytes(
+    const std::string& path) {
   TONIC_DCHECK(dirfd_ == -1);
   return filesystem::ReadFileToBytes(path);
 }
 
-} // namespace tonic
+}  // namespace tonic

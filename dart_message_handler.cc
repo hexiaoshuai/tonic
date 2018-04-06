@@ -15,10 +15,13 @@
 namespace tonic {
 
 DartMessageHandler::DartMessageHandler()
-    : handled_first_message_(false), isolate_exited_(false),
+    : handled_first_message_(false),
+      isolate_exited_(false),
       isolate_had_uncaught_exception_error_(false),
-      isolate_had_fatal_error_(false), isolate_last_error_(kNoError),
-      task_dispatcher_(nullptr), message_epilogue_(nullptr) {}
+      isolate_had_fatal_error_(false),
+      isolate_last_error_(kNoError),
+      task_dispatcher_(nullptr),
+      message_epilogue_(nullptr) {}
 
 DartMessageHandler::~DartMessageHandler() {
   task_dispatcher_ = nullptr;
@@ -35,7 +38,7 @@ void DartMessageHandler::Initialize(TaskDispatcher dispatcher,
   Dart_SetMessageNotifyCallback(MessageNotifyCallback);
 }
 
-void DartMessageHandler::OnMessage(DartState *dart_state) {
+void DartMessageHandler::OnMessage(DartState* dart_state) {
   auto task_dispatcher_ = dart_state->message_handler().task_dispatcher_;
 
   // Schedule a task to run on the message loop thread.
@@ -63,7 +66,7 @@ void DartMessageHandler::UnhandledError(Dart_Handle error) {
   }
 }
 
-void DartMessageHandler::OnHandleMessage(DartState *dart_state) {
+void DartMessageHandler::OnHandleMessage(DartState* dart_state) {
   if (isolate_had_fatal_error_) {
     // Don't handle any more messages.
     return;
@@ -145,4 +148,4 @@ void DartMessageHandler::MessageNotifyCallback(Dart_Isolate dest_isolate) {
   dart_state->message_handler().OnMessage(dart_state);
 }
 
-} // namespace tonic
+}  // namespace tonic
