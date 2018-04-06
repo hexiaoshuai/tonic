@@ -5,6 +5,7 @@
 #include "filesystem/symlink.h"
 
 #include <limits.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "filesystem/build_config.h"
