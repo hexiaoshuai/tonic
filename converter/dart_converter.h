@@ -214,8 +214,8 @@ struct DartConverter<std::string> {
   static std::string FromDart(Dart_Handle handle) {
     uint8_t* data = nullptr;
     intptr_t length = 0;
-    ;
-    Dart_StringToUTF8(handle, &data, &length);
+    if (Dart_IsError(Dart_StringToUTF8(handle, &data, &length)))
+      return std::string();
     return std::string(reinterpret_cast<char*>(data), length);
   }
 
