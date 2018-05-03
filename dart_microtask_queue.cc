@@ -80,6 +80,9 @@ void DartMicrotaskQueue::RunMicrotasks() {
         if (error != kNoError) {
           last_error_ = error;
         }
+        dart_state->MessageEpilogue(result);
+        if (!Dart_CurrentIsolate())
+            return;
       }
     }
   }

@@ -22,8 +22,7 @@ class DartMessageHandler {
   ~DartMessageHandler();
 
   // Messages for the current isolate will be scheduled on |runner|.
-  void Initialize(TaskDispatcher dispatcher,
-                  std::function<void()> message_epilogue = nullptr);
+  void Initialize(TaskDispatcher dispatcher);
 
   // Handle an unhandled error. If the error is fatal then shut down the
   // isolate. The message handler's isolate must be the current isolate.
@@ -57,7 +56,6 @@ class DartMessageHandler {
   bool isolate_had_fatal_error_;
   DartErrorHandleType isolate_last_error_;
   TaskDispatcher task_dispatcher_;
-  std::function<void()> message_epilogue_;
 
  private:
   static void MessageNotifyCallback(Dart_Isolate dest_isolate);
