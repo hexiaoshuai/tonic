@@ -28,7 +28,8 @@ class DartState : public std::enable_shared_from_this<DartState> {
  public:
   class Scope {
    public:
-    Scope(DartState* dart_state);
+    explicit Scope(DartState* dart_state);
+    explicit Scope(std::shared_ptr<DartState> dart_state);
     ~Scope();
 
    private:

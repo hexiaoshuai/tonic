@@ -14,6 +14,9 @@ namespace tonic {
 DartState::Scope::Scope(DartState* dart_state)
     : scope_(dart_state->isolate()) {}
 
+DartState::Scope::Scope(std::shared_ptr<DartState> dart_state)
+    : scope_(dart_state->isolate()) {}
+
 DartState::Scope::~Scope() {}
 
 DartState::DartState(int dirfd, std::function<void(Dart_Handle)> message_epilogue)
