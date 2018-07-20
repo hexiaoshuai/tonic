@@ -21,7 +21,7 @@ class FileLoader;
 
 // DartState represents the state associated with a given Dart isolate. The
 // lifetime of this object is controlled by the DartVM. If you want to hold a
-// reference to a DartState instance, please hold a tonic::WeakPtr<DartState>.
+// reference to a DartState instance, please hold a std::weak_ptr<DartState>.
 //
 // DartState is analogous to gin::PerIsolateData and JSC::ExecState.
 class DartState : public std::enable_shared_from_this<DartState> {

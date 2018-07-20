@@ -25,8 +25,7 @@ DartState::DartState(int dirfd, std::function<void(Dart_Handle)> message_epilogu
       message_handler_(new DartMessageHandler()),
       file_loader_(new FileLoader(dirfd)),
       message_epilogue_(message_epilogue),
-      has_set_return_code_(false),
-      weak_factory_(this) {}
+      has_set_return_code_(false) {}
 
 DartState::~DartState() {}
 
@@ -38,11 +37,15 @@ void DartState::SetIsolate(Dart_Isolate isolate) {
 }
 
 DartState* DartState::From(Dart_Isolate isolate) {
-  return static_cast<DartState*>(Dart_IsolateData(isolate));
+  auto isolate_data = static_cast<std::shared_ptr<DartState>*>(
+      Dart_IsolateData(isolate));
+  return isolate_data->get();
 }
 
 DartState* DartState::Current() {
-  return static_cast<DartState*>(Dart_CurrentIsolateData());
+  auto isolate_data = static_cast<std::shared_ptr<DartState>*>(
+      Dart_CurrentIsolateData());
+  return isolate_data->get();
 }
 
 std::weak_ptr<DartState> DartState::GetWeakPtr() {
