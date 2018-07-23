@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 
 #define TONIC_DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete;
 
@@ -17,16 +18,18 @@
   TONIC_DISALLOW_COPY(TypeName)                  \
   TONIC_DISALLOW_ASSIGN(TypeName)
 
-#ifndef NDEBUG
-#define TONIC_DCHECK assert
-#else  // NDEBUG
-#define TONIC_DCHECK (void)
-#endif  // NDEBUG
-
-#define TONIC_CHECK assert
-
 #ifndef TONIC_LOG
 #define TONIC_LOG(message, ...) printf(message "\n", ##__VA_ARGS__);
 #endif  // TONIC_LOG
+
+#define TONIC_CHECK(condition) { \
+    if (!(condition)) { TONIC_LOG("assertion failed " #condition); abort(); } \
+  }
+
+#ifndef NDEBUG
+#define TONIC_DCHECK TONIC_CHECK
+#else  // NDEBUG
+#define TONIC_DCHECK (void)
+#endif  // NDEBUG
 
 #endif  // TONIC_COMMON_MACROS_H_
