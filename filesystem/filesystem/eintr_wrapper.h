@@ -7,7 +7,7 @@
 
 #include <errno.h>
 
-#include "filesystem/build_config.h"
+#include "tonic/common/build_config.h"
 
 #if defined(OS_WIN)
 

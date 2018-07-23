@@ -24,9 +24,9 @@ std::string GetDirectoryName(const std::string& path);
 // to and including the last slash.
 std::string GetBaseName(const std::string& path);
 
-// Delete the file or directly at the given path. If recursive is true, and path
-// is a directory, also delete the directory's content.
-bool DeletePath(const std::string& path, bool recursive);
+// Returns the real path for the given path by unwinding symbolic links and
+// directory traversals.
+std::string GetAbsoluteFilePath(const std::string& path);
 
 }  // namespace filesystem
 

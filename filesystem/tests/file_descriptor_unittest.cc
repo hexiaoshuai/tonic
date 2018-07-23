@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "filesystem/file_descriptor.h"
 #include "lib/fxl/portable_unistd.h"
 
 #include <fcntl.h>

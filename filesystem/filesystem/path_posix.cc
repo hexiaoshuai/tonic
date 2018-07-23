@@ -6,6 +6,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -15,7 +16,8 @@
 #include <list>
 #include <memory>
 
-#include "filesystem/directory.h"
+#include "filesystem/portable_unistd.h"
+#include "tonic/common/build_config.h"
 
 namespace filesystem {
 namespace {
@@ -32,32 +34,12 @@ size_t ResolveParentDirectoryTraversal(const std::string& path, size_t put) {
   return 0;
 }
 
-void SafeCloseDir(DIR* dir) {
-  if (dir)
-    closedir(dir);
-}
-
-bool ForEachEntry(const std::string& path,
-                  std::function<bool(const std::string& path)> callback) {
-  std::unique_ptr<DIR, decltype(&SafeCloseDir)> dir(opendir(path.c_str()),
-                                                    SafeCloseDir);
-  if (!dir.get())
-    return false;
-  for (struct dirent* entry = readdir(dir.get()); entry != nullptr;
-       entry = readdir(dir.get())) {
-    char* name = entry->d_name;
-    if (name[0]) {
-      if (name[0] == '.') {
-        if (!name[1] || (name[1] == '.' && !name[2])) {
-          // . or ..
-          continue;
-        }
-      }
-      if (!callback(path + "/" + name))
-        return false;
-    }
+std::string GetCurrentDirectory() {
+  char buffer[PATH_MAX];
+  if (getcwd(buffer, sizeof(buffer)) == NULL) {
+    return {};
   }
-  return true;
+  return std::string(buffer);
 }
 
 }  // namespace
@@ -190,37 +172,16 @@ std::string GetBaseName(const std::string& path) {
   return path.substr(separator + 1);
 }
 
-bool DeletePath(const std::string& path, bool recursive) {
-  struct stat stat_buffer;
-  if (lstat(path.c_str(), &stat_buffer) != 0)
-    return (errno == ENOENT || errno == ENOTDIR);
-  if (!S_ISDIR(stat_buffer.st_mode))
-    return (unlink(path.c_str()) == 0);
-  if (!recursive)
-    return (rmdir(path.c_str()) == 0);
-
-  // Use std::list, as ForEachEntry callback will modify the container. If the
-  // container is a vector, this will invalidate the reference to the content.
-  std::list<std::string> directories;
-  directories.push_back(path);
-  for (auto it = directories.begin(); it != directories.end(); ++it) {
-    if (!ForEachEntry(*it, [&directories](const std::string& child) {
-          if (IsDirectory(child)) {
-            directories.push_back(child);
-          } else {
-            if (unlink(child.c_str()) != 0)
-              return false;
-          }
-          return true;
-        })) {
-      return false;
-    }
-  }
-  for (auto it = directories.rbegin(); it != directories.rend(); ++it) {
-    if (rmdir(it->c_str()) != 0)
-      return false;
-  }
-  return true;
+std::string GetAbsoluteFilePath(const std::string& path) {
+#if defined(OS_FUCHSIA)
+  // realpath() isn't supported by Fuchsia. See MG-425.
+  return SimplifyPath(AbsolutePath(path));
+#else
+  char buffer[PATH_MAX];
+  if (realpath(path.c_str(), buffer) == nullptr)
+    return std::string();
+  return buffer;
+#endif  // defined(OS_FUCHSIA)
 }
 
 }  // namespace filesystem

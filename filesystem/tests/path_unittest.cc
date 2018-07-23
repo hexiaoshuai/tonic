@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 #include "filesystem/path.h"
-#include "filesystem/build_config.h"
 #include "filesystem/directory.h"
 #include "filesystem/scoped_temp_dir.h"
 #include "gtest/gtest.h"
+#include "tonic/common/build_config.h"
 
 namespace filesystem {
 

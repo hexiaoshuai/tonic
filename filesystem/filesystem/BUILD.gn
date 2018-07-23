@@ -13,33 +13,25 @@ config("filesystem_config") {
 source_set("filesystem") {
   visibility = [ "../*" ]
 
+  configs += [ "../../:config" ]
+
   sources = [
-    "build_config.h",
-    "directory.cc",
-    "directory.h",
     "eintr_wrapper.h",
     "file.cc",
     "file.h",
-    "file_descriptor.cc",
-    "file_descriptor.h",
     "path.h",
     "portable_unistd.h",
-    "scoped_temp_dir.cc",
-    "scoped_temp_dir.h",
-    "symlink.h",
   ]
 
   if (is_win) {
-    sources += [
-      "path_win.cc",
-      "symlink_win.cc",
-    ]
+    sources += [ "path_win.cc" ]
   } else {
-    sources += [
-      "path_posix.cc",
-      "symlink_posix.cc",
-    ]
+    sources += [ "path_posix.cc" ]
   }
+
+  deps = [
+    "../../common",
+  ]
 
   public_configs = [ ":filesystem_config" ]
 }

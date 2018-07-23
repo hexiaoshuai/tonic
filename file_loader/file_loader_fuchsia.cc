@@ -15,7 +15,6 @@
 
 #include "filesystem/directory.h"
 #include "filesystem/file.h"
-#include "filesystem/file_descriptor.h"
 #include "filesystem/path.h"
 #include "filesystem/symlink.h"
 #include "tonic/common/macros.h"

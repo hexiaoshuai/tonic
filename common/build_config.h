@@ -47,7 +47,7 @@
 #elif defined(__QNXNTO__)
 #define OS_QNX 1
 #else
-#error Please add support for your platform in lib/fxl/build_config.h
+#error Please add support for your platform in tonic/common/build_config.h
 #endif
 
 // For access to standard BSD features, use OS_BSD instead of a

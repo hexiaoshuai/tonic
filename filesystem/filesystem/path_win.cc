@@ -5,7 +5,6 @@
 #include "filesystem/path.h"
 
 #include <windows.h>
-#undef GetCurrentDirectory
 
 #include <direct.h>
 #include <errno.h>
@@ -18,8 +17,6 @@
 #include <functional>
 #include <list>
 #include <memory>
-
-#include "filesystem/directory.h"
 
 namespace filesystem {
 namespace {
@@ -206,26 +203,25 @@ std::string GetBaseName(const std::string& path) {
   return path.substr(separator + 1);
 }
 
-bool DeletePath(const std::string& path, bool recursive) {
-  // SimplifyPath because SHFileOperation has trouble with double slashes.
-  std::string simple_path = SimplifyPath(path);
-  DWORD ftyp = GetFileAttributesA(simple_path.c_str());
-  if (ftyp == INVALID_FILE_ATTRIBUTES)
-    return false;
-  if (!(ftyp & FILE_ATTRIBUTE_DIRECTORY))
-    return (unlink(simple_path.c_str()) == 0);
-  if (!recursive)
-    return (rmdir(simple_path.c_str()) == 0);
-  SHFILEOPSTRUCTA file_op = {NULL,
-                             FO_DELETE,
-                             simple_path.c_str(),
-                             "",
-                             FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT,
-                             false,
-                             0,
-                             ""};
-  int a = SHFileOperationA(&file_op);
-  return (a == 0);
+std::string GetAbsoluteFilePath(const std::string& path) {
+  HANDLE file =
+      CreateFileA(path.c_str(), FILE_READ_ATTRIBUTES,
+                  FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                  OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+  if (file == INVALID_HANDLE_VALUE) {
+    return std::string();
+  }
+  char buffer[MAX_PATH];
+  DWORD ret =
+      GetFinalPathNameByHandleA(file, buffer, MAX_PATH, FILE_NAME_NORMALIZED);
+  if (ret == 0 || ret > MAX_PATH) {
+    CloseHandle(file);
+    return std::string();
+  }
+  std::string result(buffer);
+  result.erase(0, strlen("\\\\?\\"));
+  CloseHandle(file);
+  return result;
 }
 
 }  // namespace filesystem
