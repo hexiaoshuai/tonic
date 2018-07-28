@@ -42,11 +42,13 @@ class Descriptor {
 // otherwise returns false. If this function returns false, |result| will be
 // the empty string.
 bool ReadFileToString(const std::string& path, std::string* result);
+bool ReadFileDescriptorToString(int fd, std::string* result);
 
 // Reads the contents of the file at the given path and if successful, returns
 // pair of read allocated bytes with data and size of the data if succesful.
 // pair of <nullptr, -1> if read failed.
 std::pair<uint8_t*, intptr_t> ReadFileToBytes(const std::string& path);
+std::pair<uint8_t*, intptr_t> ReadFileDescriptorToBytes(int fd);
 
 }  // namespace filesystem
 
