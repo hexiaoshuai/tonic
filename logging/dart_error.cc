@@ -13,7 +13,7 @@ const char kInvalidArgument[] = "Invalid argument.";
 
 bool LogIfError(Dart_Handle handle) {
   if (Dart_IsError(handle)) {
-    TONIC_LOG("Dart Error: %s", Dart_GetError(handle));
+    tonic::Log("Dart Error: %s", Dart_GetError(handle));
     return true;
   }
   return false;

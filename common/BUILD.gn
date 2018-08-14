@@ -9,6 +9,8 @@ source_set("common") {
 
   sources = [
     "build_config.h",
+    "log.cc",
+    "log.h",
     "macros.h",
   ]
 }

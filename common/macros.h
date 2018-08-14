@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "tonic/common/log.h"
+
 #define TONIC_DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete;
 
 #define TONIC_DISALLOW_ASSIGN(TypeName) \
@@ -18,12 +20,8 @@
   TONIC_DISALLOW_COPY(TypeName)                  \
   TONIC_DISALLOW_ASSIGN(TypeName)
 
-#ifndef TONIC_LOG
-#define TONIC_LOG(message, ...) printf(message "\n", ##__VA_ARGS__);
-#endif  // TONIC_LOG
-
 #define TONIC_CHECK(condition) { \
-    if (!(condition)) { TONIC_LOG("assertion failed " #condition); abort(); } \
+    if (!(condition)) { tonic::Log("assertion failed " #condition); abort(); } \
   }
 
 #ifndef NDEBUG
