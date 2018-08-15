@@ -6,6 +6,7 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <memory>
 
 namespace tonic {
 
