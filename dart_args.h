@@ -120,6 +120,7 @@ template <size_t... indices, typename ResultType, typename... ArgTypes>
 struct DartDispatcher<IndicesHolder<indices...>, ResultType (*)(ArgTypes...)>
     : public DartArgHolder<indices, ArgTypes>... {
   using FunctionPtr = ResultType (*)(ArgTypes...);
+  using CtorResultType = ResultType;
 
   DartArgIterator* it_;
 
@@ -217,10 +218,15 @@ template <typename Sig>
 void DartCallConstructor(Sig func, Dart_NativeArguments args) {
   DartArgIterator it(args);
   using Indices = typename IndicesForSignature<Sig>::type;
-  DartDispatcher<Indices, Sig> decoder(&it);
-  if (it.had_exception())
-    return;
-  decoder.DispatchCtor(func)->AssociateWithDartWrapper(args);
+  using Wrappable = typename DartDispatcher<Indices, Sig>::CtorResultType;
+  Wrappable wrappable;
+  {
+    DartDispatcher<Indices, Sig> decoder(&it);
+    if (it.had_exception())
+      return;
+    wrappable = decoder.DispatchCtor(func);
+  }
+  wrappable->AssociateWithDartWrapper(args);
 }
 
 }  // namespace tonic
