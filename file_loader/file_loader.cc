@@ -79,16 +79,14 @@ bool FileLoader::LoadPackagesMap(const std::string& packages) {
   dependencies_.insert(packages_);
   std::string packages_source;
   if (!ReadFileToString(packages_, &packages_source)) {
-    std::cerr << "error: Unable to load .packages file '" << packages_ << "'."
-              << std::endl;
+    tonic::Log("error: Unable to load .packages file '%s'.", packages_.c_str());
     return false;
   }
   packages_map_.reset(new PackagesMap());
   std::string error;
   if (!packages_map_->Parse(packages_source, &error)) {
-    std::cerr << "error: Unable to parse .packages file '" << packages_ << "'."
-              << std::endl
-              << error << std::endl;
+    tonic::Log("error: Unable to parse .packages file '%s'. %s",
+               packages_.c_str(), error.c_str());
     return false;
   }
   return true;
@@ -172,8 +170,7 @@ std::string FileLoader::Fetch(const std::string& url,
                               std::string* resolved_url) {
   std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
   if (path.empty()) {
-    std::cerr << "error: Unable to read Dart source '" << url << "'."
-              << std::endl;
+    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
     PlatformExit(1);
   }
   if (resolved_url)
@@ -184,8 +181,7 @@ std::string FileLoader::Fetch(const std::string& url,
     // or exit the process. Instead these errors should be reported to the
     // caller of the FileLoader who can implement the application-specific error
     // handling policy.
-    std::cerr << "error: Unable to read Dart source '" << url << "'."
-              << std::endl;
+    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
     PlatformExit(1);
   }
   url_dependencies_.insert(url);
@@ -196,8 +192,7 @@ std::string FileLoader::Fetch(const std::string& url,
 std::pair<uint8_t*, intptr_t> FileLoader::FetchBytes(const std::string& url) {
   std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
   if (path.empty()) {
-    std::cerr << "error: Unable to read Dart source '" << url << "'."
-              << std::endl;
+    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
     PlatformExit(1);
   }
   auto result =
@@ -207,8 +202,7 @@ std::pair<uint8_t*, intptr_t> FileLoader::FetchBytes(const std::string& url) {
     // error or exit the process. Instead these errors should be reported to the
     // caller of the FileLoader who can implement the application-specific error
     // handling policy.
-    std::cerr << "error: Unable to read Dart source '" << url << "'."
-              << std::endl;
+    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
     PlatformExit(1);
   }
   url_dependencies_.insert(url);
