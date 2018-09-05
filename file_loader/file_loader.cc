@@ -280,7 +280,7 @@ void FileLoader::SetPackagesUrl(Dart_Handle url) {
 
 std::string FileLoader::GetFilePathForFileURL(std::string url) {
   TONIC_DCHECK(url.find(FileLoader::kFileURLPrefix) == 0u);
-  return url.substr(FileLoader::kFileURLPrefixLength);
+  return SanitizePath(url.substr(FileLoader::kFileURLPrefixLength));
 }
 
 std::string FileLoader::GetFileURLForPath(const std::string& path) {
