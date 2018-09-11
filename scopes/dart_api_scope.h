@@ -6,6 +6,7 @@
 #define LIB_TONIC_SCOPES_DART_API_SCOPE_H_
 
 #include "third_party/dart/runtime/include/dart_api.h"
+#include "tonic/common/macros.h"
 
 namespace tonic {
 

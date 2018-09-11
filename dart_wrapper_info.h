@@ -5,6 +5,8 @@
 #ifndef LIB_TONIC_DART_WRAPPER_INFO_H_
 #define LIB_TONIC_DART_WRAPPER_INFO_H_
 
+#include <cstddef>
+
 namespace tonic {
 class DartWrappable;
 
