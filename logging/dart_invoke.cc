@@ -17,11 +17,12 @@ bool DartInvokeField(Dart_Handle target,
                                 const_cast<Dart_Handle*>(args.begin())));
 }
 
-void DartInvoke(Dart_Handle closure, std::initializer_list<Dart_Handle> args) {
+Dart_Handle DartInvoke(Dart_Handle closure, std::initializer_list<Dart_Handle> args) {
   int argc = args.size();
   Dart_Handle* argv = const_cast<Dart_Handle*>(args.begin());
   Dart_Handle handle = Dart_InvokeClosure(closure, argc, argv);
   LogIfError(handle);
+  return handle;
 }
 
 Dart_Handle DartInvokeVoid(Dart_Handle closure) {
