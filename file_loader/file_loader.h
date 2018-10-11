@@ -40,17 +40,9 @@ class FileLoader {
                                Dart_Handle url);
 
   Dart_Handle CanonicalizeURL(Dart_Handle library, Dart_Handle url);
-  Dart_Handle Import(Dart_Handle url);
   Dart_Handle Kernel(Dart_Handle url);
-  Dart_Handle Source(Dart_Handle library, Dart_Handle url);
-  Dart_Handle Script(Dart_Handle url);
   void SetPackagesUrl(Dart_Handle url);
 
-  Dart_Handle LoadLibrary(const std::string& url);
-  Dart_Handle LoadScript(const std::string& url);
-
-  std::string Fetch(const std::string& url,
-                    std::string* resolved_url = nullptr);
   std::pair<uint8_t*, intptr_t> FetchBytes(const std::string& url);
 
   static const char kFileURLPrefix[];

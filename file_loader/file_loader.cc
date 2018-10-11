@@ -122,19 +122,6 @@ Dart_Handle FileLoader::HandleLibraryTag(Dart_LibraryTag tag,
   TONIC_DCHECK(Dart_IsString(url));
   if (tag == Dart_kCanonicalizeUrl)
     return CanonicalizeURL(library, url);
-  if (tag == Dart_kImportTag)
-    return Import(url);
-  if (tag == Dart_kSourceTag)
-    return Source(library, url);
-  if (tag == Dart_kScriptTag) {
-    // Clear dependencies.
-    dependencies_.clear();
-    url_dependencies_.clear();
-    // Reload packages map.
-    SetPackagesUrl(library);
-    // Load the root script.
-    return Script(url);
-  }
   if (tag == Dart_kKernelTag)
     return Kernel(url);
   return Dart_NewApiError("Unknown library tag.");
@@ -166,29 +153,6 @@ std::string FileLoader::GetFilePathForURL(std::string url) {
   return url;
 }
 
-std::string FileLoader::Fetch(const std::string& url,
-                              std::string* resolved_url) {
-  std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
-  if (path.empty()) {
-    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
-    PlatformExit(1);
-  }
-  if (resolved_url)
-    *resolved_url = GetFileURLForPath(path);
-  std::string source;
-  if (!ReadFileToString(filesystem::GetAbsoluteFilePath(path), &source)) {
-    // TODO(johnmccutchan): The file loader should not explicitly log the error
-    // or exit the process. Instead these errors should be reported to the
-    // caller of the FileLoader who can implement the application-specific error
-    // handling policy.
-    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
-    PlatformExit(1);
-  }
-  url_dependencies_.insert(url);
-  dependencies_.insert(path);
-  return source;
-}
-
 std::pair<uint8_t*, intptr_t> FileLoader::FetchBytes(const std::string& url) {
   std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
   if (path.empty()) {
@@ -210,29 +174,6 @@ std::pair<uint8_t*, intptr_t> FileLoader::FetchBytes(const std::string& url) {
   return result;
 }
 
-Dart_Handle FileLoader::LoadLibrary(const std::string& url) {
-  std::string resolved_url;
-  Dart_Handle source = ToDart(Fetch(url, &resolved_url));
-  return Dart_LoadLibrary(ToDart(url), ToDart(resolved_url), source, 0, 0);
-}
-
-Dart_Handle FileLoader::LoadScript(const std::string& url) {
-  std::string resolved_url;
-  Dart_Handle source = ToDart(Fetch(url, &resolved_url));
-  Dart_Handle result =
-      Dart_LoadScript(ToDart(url), ToDart(resolved_url), source, 0, 0);
-  if (!Dart_IsError(result)) {
-    Dart_Handle finalize_result = Dart_FinalizeLoading(true);
-    if (Dart_IsError(finalize_result))
-      return finalize_result;
-  }
-  return result;
-}
-
-Dart_Handle FileLoader::Import(Dart_Handle url) {
-  return LoadLibrary(StdStringFromDart(url));
-}
-
 namespace {
 void MallocFinalizer(void* isolate_callback_data,
                      Dart_WeakPersistentHandle handle,
@@ -251,17 +192,7 @@ Dart_Handle FileLoader::Kernel(Dart_Handle url) {
   return result;
 }
 
-Dart_Handle FileLoader::Source(Dart_Handle library, Dart_Handle url) {
-  std::string resolved_url;
-  Dart_Handle source = ToDart(Fetch(StdStringFromDart(url), &resolved_url));
-  return Dart_LoadSource(library, url, ToDart(resolved_url), source, 0, 0);
-}
-
 // This is invoked upon a reload request.
-Dart_Handle FileLoader::Script(Dart_Handle url) {
-  return LoadScript(StdStringFromDart(url));
-}
-
 void FileLoader::SetPackagesUrl(Dart_Handle url) {
   if (url == Dart_Null()) {
     // No packages url specified.
