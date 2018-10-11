@@ -8,6 +8,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "third_party/dart/runtime/include/dart_api.h"
 #include "tonic/common/macros.h"
@@ -25,25 +26,18 @@ class FileLoader {
   // The path to the `.packages` file the packages map was loaded from.
   const std::string& packages() const { return packages_; }
 
-  // Fully resolved file paths to dependencies. For example,
-  // "package:foo/bar.dart" will be resolved to
-  // "/path/to/package/foo/lib/bar.dart".
-  const std::set<std::string>& dependencies() const { return dependencies_; }
-  // Canonicalized urls to dependencies. No package resolution is done,
-  // For example, "package:foo/bar.dart" will be "package:foo/bar.dart".
-  const std::set<std::string>& url_dependencies() const {
-    return url_dependencies_;
-  }
-
   Dart_Handle HandleLibraryTag(Dart_LibraryTag tag,
                                Dart_Handle library,
                                Dart_Handle url);
 
   Dart_Handle CanonicalizeURL(Dart_Handle library, Dart_Handle url);
+  Dart_Handle Import(Dart_Handle url);
   Dart_Handle Kernel(Dart_Handle url);
   void SetPackagesUrl(Dart_Handle url);
 
-  std::pair<uint8_t*, intptr_t> FetchBytes(const std::string& url);
+  Dart_Handle FetchBytes(const std::string& url,
+                         uint8_t*& buffer,
+                         intptr_t& buffer_size);
 
   static const char kFileURLPrefix[];
   static const size_t kFileURLPrefixLength;
@@ -64,10 +58,9 @@ class FileLoader {
   std::pair<uint8_t*, intptr_t> ReadFileToBytes(const std::string& path);
 
   int dirfd_;
-  std::set<std::string> dependencies_;
-  std::set<std::string> url_dependencies_;
   std::string packages_;
   std::unique_ptr<PackagesMap> packages_map_;
+  std::vector<uint8_t*> kernel_buffers_;
 
   TONIC_DISALLOW_COPY_AND_ASSIGN(FileLoader);
 };

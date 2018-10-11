@@ -50,6 +50,9 @@ std::string ExtractPath(std::string url) {
 FileLoader::FileLoader(int dirfd) : dirfd_(dirfd) {}
 
 FileLoader::~FileLoader() {
+  for (auto kernel_buffer : kernel_buffers_)
+    free(kernel_buffer);
+
   if (dirfd_ >= 0)
     close(dirfd_);
 }
@@ -76,7 +79,6 @@ std::string FileLoader::SanitizeURIEscapedCharacters(const std::string& str) {
 
 bool FileLoader::LoadPackagesMap(const std::string& packages) {
   packages_ = packages;
-  dependencies_.insert(packages_);
   std::string packages_source;
   if (!ReadFileToString(packages_, &packages_source)) {
     tonic::Log("error: Unable to load .packages file '%s'.", packages_.c_str());
@@ -124,6 +126,8 @@ Dart_Handle FileLoader::HandleLibraryTag(Dart_LibraryTag tag,
     return CanonicalizeURL(library, url);
   if (tag == Dart_kKernelTag)
     return Kernel(url);
+  if (tag == Dart_kImportTag)
+    return Import(url);
   return Dart_NewApiError("Unknown library tag.");
 }
 
@@ -153,25 +157,42 @@ std::string FileLoader::GetFilePathForURL(std::string url) {
   return url;
 }
 
-std::pair<uint8_t*, intptr_t> FileLoader::FetchBytes(const std::string& url) {
+Dart_Handle FileLoader::FetchBytes(const std::string& url,
+                                   uint8_t*& buffer,
+                                   intptr_t& buffer_size) {
+  buffer = nullptr;
+  buffer_size = -1;
+
   std::string path = filesystem::SimplifyPath(GetFilePathForURL(url));
   if (path.empty()) {
-    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
-    PlatformExit(1);
+    std::string error_message = "error: Unable to read '" + url + "'.";
+    return Dart_NewUnhandledExceptionError(
+        Dart_NewStringFromCString(error_message.c_str()));
   }
-  auto result =
-      filesystem::ReadFileToBytes(filesystem::GetAbsoluteFilePath(path));
+  std::string absolute_path = filesystem::GetAbsoluteFilePath(path);
+  auto result = filesystem::ReadFileToBytes(absolute_path);
   if (result.first == nullptr) {
-    // TODO(aam): Same as above the file loader should not explicitly log the
-    // error or exit the process. Instead these errors should be reported to the
-    // caller of the FileLoader who can implement the application-specific error
-    // handling policy.
-    tonic::Log("error: Unable to read Dart source '%s'.", url.c_str());
-    PlatformExit(1);
+    std::string error_message =
+        "error: Unable to read '" + absolute_path + "'.";
+    return Dart_NewUnhandledExceptionError(
+        Dart_NewStringFromCString(error_message.c_str()));
   }
-  url_dependencies_.insert(url);
-  dependencies_.insert(path);
-  return result;
+  buffer = result.first;
+  buffer_size = result.second;
+  return Dart_True();
+}
+
+Dart_Handle FileLoader::Import(Dart_Handle url) {
+  std::string url_string = StdStringFromDart(url);
+  uint8_t* buffer = nullptr;
+  intptr_t buffer_size = -1;
+  Dart_Handle result = FetchBytes(url_string, buffer, buffer_size);
+  if (Dart_IsError(result)) {
+    return result;
+  }
+  // The embedder must keep the buffer alive until isolate shutdown.
+  kernel_buffers_.push_back(buffer);
+  return Dart_LoadLibraryFromKernel(buffer, buffer_size);
 }
 
 namespace {
@@ -184,11 +205,15 @@ void MallocFinalizer(void* isolate_callback_data,
 
 Dart_Handle FileLoader::Kernel(Dart_Handle url) {
   std::string url_string = StdStringFromDart(url);
-  std::pair<uint8_t*, intptr_t> fetched_result = FetchBytes(url_string);
-  Dart_Handle result = Dart_NewExternalTypedData(
-      Dart_TypedData_kUint8, fetched_result.first, fetched_result.second);
-  Dart_NewWeakPersistentHandle(result, fetched_result.first,
-                               fetched_result.second, MallocFinalizer);
+  uint8_t* buffer = nullptr;
+  intptr_t buffer_size = -1;
+  Dart_Handle result = FetchBytes(url_string, buffer, buffer_size);
+  if (Dart_IsError(result)) {
+    return result;
+  }
+  result =
+      Dart_NewExternalTypedData(Dart_TypedData_kUint8, buffer, buffer_size);
+  Dart_NewWeakPersistentHandle(result, buffer, buffer_size, MallocFinalizer);
   return result;
 }
 
