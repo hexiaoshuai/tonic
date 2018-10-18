@@ -284,6 +284,13 @@ struct DartListFactory {
   static Dart_Handle NewList(intptr_t length) { return Dart_NewList(length); }
 };
 
+template <>
+struct DartListFactory<std::string> {
+  static Dart_Handle NewList(intptr_t length) {
+    return Dart_NewListOf(Dart_CoreType_String, length);
+  }
+};
+
 template <typename T>
 struct DartConverter<std::vector<T>> {
   using ValueType = typename DartConverterTypes<T>::ValueType;
