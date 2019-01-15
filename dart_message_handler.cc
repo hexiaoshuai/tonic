@@ -9,7 +9,6 @@
 #include "third_party/dart/runtime/include/dart_tools_api.h"
 #include "tonic/common/macros.h"
 #include "tonic/dart_state.h"
-#include "tonic/dart_sticky_error.h"
 #include "tonic/logging/dart_error.h"
 
 namespace tonic {

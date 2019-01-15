@@ -6,7 +6,6 @@
 
 #include "tonic/common/build_config.h"
 #include "tonic/dart_state.h"
-#include "tonic/dart_sticky_error.h"
 #include "tonic/logging/dart_invoke.h"
 
 #ifdef OS_IOS
