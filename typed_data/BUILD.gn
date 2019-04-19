@@ -18,6 +18,8 @@ source_set("typed_data") {
     "int32_list.h",
     "uint8_list.cc",
     "uint8_list.h",
+    "uint16_list.cc",
+    "uint16_list.h",
   ]
 
   deps = [
