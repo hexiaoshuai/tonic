@@ -73,7 +73,7 @@ Dart_Handle DartConverter<Uint16List>::ToDart(const uint16_t* buffer,
     TONIC_CHECK(type == Dart_TypedData_kUint16);
     TONIC_CHECK(data);
     TONIC_CHECK(data_length == buffer_length);
-    memmove(data, buffer, data_length);
+    memmove(data, buffer, data_length * sizeof(uint16_t));
     Dart_TypedDataReleaseData(array);
   }
   return array;
