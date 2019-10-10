@@ -8,8 +8,29 @@
 
 namespace tonic {
 
+Dart_Handle DartByteData::Create(const void* data, size_t length) {
+  auto handle = DartByteData{data, length}.dart_handle();
+  // The destructor should release the typed data.
+  return handle;
+}
+
 DartByteData::DartByteData()
     : data_(nullptr), length_in_bytes_(0), dart_handle_(nullptr) {}
+
+DartByteData::DartByteData(const void* data, size_t length)
+    : data_(nullptr),
+      length_in_bytes_(0),
+      dart_handle_(Dart_NewTypedData(Dart_TypedData_kByteData, length)) {
+  if (!Dart_IsError(dart_handle_)) {
+    Dart_TypedData_Type type;
+    auto acquire_result = Dart_TypedDataAcquireData(dart_handle_, &type, &data_,
+                                                    &length_in_bytes_);
+
+    if (!Dart_IsError(acquire_result)) {
+      ::memcpy(data_, data, length_in_bytes_);
+    }
+  }
+}
 
 DartByteData::DartByteData(Dart_Handle list)
     : data_(nullptr), length_in_bytes_(0), dart_handle_(list) {

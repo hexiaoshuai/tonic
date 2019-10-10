@@ -14,6 +14,8 @@ namespace tonic {
 
 class DartByteData {
  public:
+  static Dart_Handle Create(const void* data, size_t length);
+
   explicit DartByteData(Dart_Handle list);
   DartByteData(DartByteData&& other);
   DartByteData();
@@ -35,6 +37,7 @@ class DartByteData {
   Dart_Handle dart_handle_;
 
   DartByteData(const DartByteData& other) = delete;
+  DartByteData(const void* data, size_t length);
 };
 
 template <>
